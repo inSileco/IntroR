@@ -1,0 +1,896 @@
+---
+title: "Introduction to R"
+# subtitle: ""
+author: "Marie-Hélène Brice & Kevin Cazelles"
+date: "2019/26/03"
+output:
+  xaringan::moon_reader:
+    includes:
+      in_header: inSileco-header.html
+    lib_dir: assets
+    seal: false
+    css: ["default", "inSileco.css", "inSileco-fonts.css"]
+    nature:
+      beforeInit: "inSileco-macros.js"
+      highlightLines: false
+---
+
+```{r setup, echo = F}
+## Setup for your presentation
+library(knitr)
+
+opts_chunk$set(
+  eval = T,
+  cache = T,
+  comment = "#",
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width=5, fig.height=5,
+  fig.align = 'center'
+)
+
+
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  lines <- options$output.lines
+  if (is.null(lines)) {
+    return(hook_output(x, options))  # pass to default hook
+  }
+  x <- unlist(strsplit(x, "\n"))
+  more <- "..."
+  if (length(lines)==1) {        # first n lines
+    if (length(x) > lines) {
+      # truncate the output, but add ....
+      x <- c(head(x, lines), more)
+    }
+  } else {
+    x <- c(more, x[lines], more)
+  }
+  # paste these lines together
+  x <- paste(c(x, ""), collapse = "\n")
+  hook_output(x, options)
+})
+``` 
+
+```{r, echo = F}
+mypar = list(mar = c(3,3,1,0.5), mgp = c(1.6, 0.3, 0), tck = -.02, cex = 1.5)
+
+options(repos=structure(c(CRAN="http://cran.r-project.org")))
+```
+
+```{r, include = FALSE}
+if (!require(vegan)) install.packages("vegan")
+library(vegan)
+if (!require(ade4)) install.packages("ade4")
+library(ade4)
+if (!require(scales)) install.packages("scales")
+library(scales)
+```
+
+class: inverse, center, middle
+
+# Introduction to ordination
+
+## Principal component analysis (PCA) & Redundancy analysis (RDA)
+
+---
+# Ordination of multivariate data
+
+<br>
+
+.center[![:scale 70%](images/ordi1.png)]
+
+---
+# Ordination of multivariate data
+
+<br>
+
+.center[![:scale 70%](images/ordi2.png)]
+
+---
+# Ordination of multivariate data
+
+<br>
+
+.center[![:scale 70%](images/ordi3.png)]
+
+---
+# Unconstrained vs constrained ordinations
+
+**Unconstrained ordination**
+
+- Reveal the main patterns in multivariate data (e.g. matrix of species abundance at different sites or matrix of environmental variables at different sites)
+- Describe relationship among variables of one matrix.
+- Descriptive method: no statistical test
+
+**Constrained/canonical ordination**
+
+- Explicitly puts into relationship two matrices: one dependent matrix and one explanatory matrix. 
+- This approach combines the techniques of ordination and multiple regression.
+- Explanatory method: statistical test
+
+<br>
+*Both types of ordination are based upon a comparison of all possible pairs of objects (or descriptors) using association measures.*
+
+---
+# Unconstrained vs constrained ordinations
+
+<br>
+
+| Response data | Explanatory variables  | Analysis            |
+|---------------|------------------------|---------------------|
+| 1 variable    | 1 variable             | Simple regression   |
+| 1 variable    | m variables            | Multiple regression |
+| p variables   | -                      | Simple ordination   |
+| p variables   | m variables            | Canonical ordination|
+
+---
+# Steps to ordination
+
+1. Explore your data: 
+  - multivariate data, species abundance or environmental variables, 1 or 2 matrices
+2. Prep your data
+3. Perform an ordination analysis:
+  - Unconstrained to describe 1 matrix
+  - Constrained to explain the species matrix by the environmental matrix
+4. Interpret the output
+5. Plot
+6. For constrained ordination: variable selection + test of significance
+
+---
+class: inverse, center, middle
+# Explore data
+
+---
+# Doubs River Fish Dataset
+
+.pull-left[
+
+Verneaux (1973) dataset:
+- characterization of fish communities
+- 27 different species
+- 30 different sites
+- 11 environmental variables
+
+]
+
+.pull.right[
+![:scale 50%](images/DoubsRiver.png)
+]
+
+---
+# Doubs River Fish Dataset
+
+Load the Doubs River species data
+
+```{r}
+data(doubs) # available in ade4
+spe <- doubs$fish
+env <- doubs$env
+# remove site with no data
+# spe <-  spe[-8]
+# env <- env[-8]
+```
+
+---
+# Explore environmental data
+
+```{r, echo = T}
+head(env) # first 6 rows
+```
+
+---
+# Explore environmental data
+
+```{r, fig.width=11, fig.height=10, echo = -1}
+par(mar=c(0,0,0,0))
+pairs(env) 
+```
+
+---
+# Explore species data
+
+```{r}
+head(spe)
+```
+
+---
+# Explore species data
+
+Take a look at the distribution of species frequencies  
+
+```{r, fig.width=8, echo = -1}
+par(mypar)
+ab <- table(unlist(spe))
+barplot(ab, las = 1, col = grey(5:0/5),
+        xlab = "Abundance class", ylab = "Frequency")
+```
+
+.alert[Note the proportion of 0s.]
+
+---
+# Double zero
+
+**How do we interpret the double absence of species in a matrix of species abundances (or presence-absence)?**
+
+<img style="float: right; width:50%;margin: 1%" src="images/double-zero.png">
+- the *presence* of a species in 2 sites indicates ecological resemblance between these 2 sites 
+  - the sites provide a set of minimal conditions allowing the species to survive.
+
+- the *absence* of a species from 2 sites cannot be interpreted as a resemblance because it may be due to a variety of causes: competition, several dimensions of the niche (pH, light, temperature...), random dispersal process.
+
+
+
+.alert[A measured 0 (e.g 0mg/L, 0°C) is not the same than a 0 representing an absence of observation]
+
+---
+class: inverse, center, middle
+# Data preparation
+
+---
+# Distance measures
+
+.comment[Ordination analysis are based on the comparison of all possible pairs of objects. 
+
+PCA and RDA are based on the Euclidean distance.]
+
+<br>
+
+Here we want to measure the ecological resemblance (distance or similarity) among sites.
+
+<img style="float: right; width:30%;margin: 1%" src="images/distMes.png">
+- If we compare the sites based on their **environmental variables**, we can use the **Eucidean distance**
+
+- If we compare the sites based on their **species composition**, we don't want to consider double-zero as a similarity. **Euclidean distance is not appropriate**.
+  - Solution 1: **Pre-transform** the species matrix to trick the PCA or RDA to use an appropriate distance such as Hellinger.
+  - Solution 2: Run a correspondance analysis (CA) which is based on the Chi-square distance
+  - Solution 3: Compute a distance matrix from the species matrix and run a PCoA
+
+---
+# Standardization of environmental data
+
+Standardizing environmental variables is necessary as you cannot compare the effects of variables with different units
+
+```{r}
+env.z <- decostand(env, method = "standardize")
+# env.z <- scale(env)
+```
+
+Standardization centers (mean $\mu$ = 0) and scales (standard deviation $\sigma$ = 1) the variables 
+
+```{r}
+apply(env.z, 2, mean)
+
+apply(env.z, 2, sd)
+```
+
+---
+# Transforming species community data
+
+<br>
+
+.center[
+![](images/transformation.png)]
+
+---
+# Transforming species community data
+
+**Hellinger transformation**
+
+```{r}
+spe.hel <- decostand(spe, method = "hellinger")
+```
+
+Other transformation methods:
+
+`method = "chi.square"` ![:faic](arrow-right) when using this transformation in a PCA, the result will be similar to the result of a correspondance analysis (CA)
+
+`method = "normalize"` ![:faic](arrow-right) Chord transformation
+
+`method = "total"` ![:faic](arrow-right)  Species profile transformation
+
+> According to [Legendre & Gallagher](http://adn.biol.umontreal.ca/~numericalecology/Reprints/Legendre_&_Gallagher.pdf): The Hellinger and chord transformations appear to be the best for general use with species data.
+
+---
+class: inverse, center, middle
+# Unconstrained ordination 
+## PCA
+
+
+
+---
+# Principal Component Analysis (PCA)
+
+- Starting from a multidimensional sites x descriptors matrix 
+  - where the descriptors can be species abundance (or presence-absence) or environmental variables
+
+- A PCA will preserve the maximum amount of variation in the data in a reduced number of dimensions (usually we use the first 2 dimensions) 
+
+- The resulting, synthetic variables are orthogonal (i.e. perpendicular and therefore uncorrelated)
+
+.center[
+![:scale 70%](images/pca_3d_2d.jpg)]
+
+---
+# PCA - Multidimensional case
+
+<br/><br/>
+
+- **PC1** ![:faic](arrow-right) axis that maximizes the variance of the points that are projected perpendicularly onto the axis.
+- **PC2** ![:faic](arrow-right) must be perpendicular to PC1, but the direction is again the one in which variance is maximized when points are perpendicularly projected
+- **PC3** ![:faic](arrow-right) and so on: perpendicular to the first two axes
+
+<br/>
+
+.red[For a matrix containing *p* descriptors, a PCA produces a *p* axes which are ordered according to the % of variation of the data they explain]
+
+
+---
+# PCA - Let's try it on the fish dataset!
+
+- For both PCA and RDA, we can use the `rda()` function from the vegan package
+  - `rda(Y ~ X)` or `rda(Y, X)` ![:faic](arrow-right) RDA
+  - `rda(Y)` or `rda(X)` ![:faic](arrow-right) PCA
+
+---
+# PCA
+
+- Run a PCA on the Hellinger-transformed fish data and extract the results
+
+```{r, output.lines = 1:20}
+spe.h.pca <- rda(spe.hel)
+
+summary(spe.h.pca)
+```
+
+---
+#PCA - Interpretation of Output
+
+```{r, output.lines = 2:8}
+summary(spe.h.pca)
+```
+
+- `Inertia` ![:faic](arrow-right) general term for "variation" in the data.
+- Total variance of the dataset (here the fish species) = 0.5023
+- In PCA, note that the "Total" and "Unconstrained" portion of the inertia is identical
+
+---
+# PCA - Interpretation of Output
+
+<br/>
+
+```{r, output.lines = 10:16}
+summary(spe.h.pca)
+```
+
+- `Eigenvalue` ![:faic](arrow-right) measures the amount of variation represented by each ordination axe (Principal Component or PC)
+- One eigenvalue associated to each PC (in this output there are 27 PCs, as this is the number of species)
+
+
+<br/>
+
+.center[**0.2491 + 0.06592 + ... = 0.5023 Total inertia**]
+
+---
+# PCA - Interpretation of Output
+
+```{r, output.lines = 2:16}
+summary(spe.h.pca)
+```
+
+
+- `Proportion Explained` ![:faic](arrow-right) proportion of variation accounted for, by dividing the eigenvalues by the total inertia.
+
+<br/>
+
+.center[**0.2491/0.5023 = 0.4959 or 49.59%**]
+
+
+---
+# PCA - Interpretation of Output
+
+```{r, output.lines = 40:50}
+summary(spe.h.pca)
+```
+
+
+- `Species scores` ![:faic](arrow-right) coordinates of all descriptors in the multidimensional space of the PCA. 
+
+<br>
+
+- Species always refers to your descriptors (the columns in your matrix), here the fish species. Even if you run a PCA on environmental variables, the descriptors will still be called Species scores
+
+---
+# PCA - Interpretation of Output
+
+```{r, output.lines = 72:82}
+summary(spe.h.pca)
+```
+
+- `Site scores` ![:faic](arrow-right) coordinates of all sites in the multidimensional space of the PCA. 
+
+<br>
+
+- Site refers to the rows in your dataset, here the different sites along the Doubs river (but it can be points in time, etc)
+
+
+
+
+---
+# Selecting Important PCs
+
+Select PCs which capture more variance than the average (Kaiser-Guttman criterion)
+
+
+```{r, echo = -1, fig.width=10, fig.height = 5.5}
+par(mypar)
+ev <- spe.h.pca$CA$eig # extract eigenvalues
+barplot(ev, main = "Eigenvalues", col = "grey", las = 2)
+abline(h = mean(ev), col = "red3", lwd = 2)
+```
+
+
+---
+# PCA - environmental variables
+
+We can also run PCAs on standardized environmental variables, to compare environmental conditions of sites or how environmental variables are correlated...
+
+- Run a PCA on the standardized environmental variables and extract the results
+```{r, output.lines = 1:20}
+env.pca <- rda(env.z)
+summary(env.pca)
+```
+
+---
+# PCA - environmental variables
+
+- Plot the eigenvalues above average
+
+```{r, echo = -1, fig.width=10, fig.height = 5.5}
+par(mypar)
+ev <- env.pca$CA$eig # extract eigenvalues
+barplot(ev, main = "Eigenvalues", col = "grey", las = 2)
+abline(h = mean(ev), col = "red3", lwd = 2)
+```
+
+---
+# PCA - Visualization
+
+The abundance of information produced by PCA is easier to understand and interpret using biplots to visualize patterns
+
+- We can produce a quick biplot of the PCA using the function `biplot()` in base R
+
+```{r, echo = -1}
+par(mypar)
+biplot(spe.h.pca)
+```
+
+---
+# PCA - Scaling
+
+```{r, echo = -1, fig.height=5, fig.width=10}
+par(mypar, mfrow = c(1,2))
+biplot(spe.h.pca, scaling = 1, main = "Scaling 1 = distance biplot")
+biplot(spe.h.pca, scaling = 2, main = "Scaling 2 = correlation biplot")
+```
+
+- In a PCA, we interpret the .purple[**correlation among species**] by looking at the angles among their arrows, while we interpret the .purple[**distance among sites**]. 
+
+- However, we cannot optimally display sites and species together in a PCA biplot. 
+
+---
+# PCA - Scaling
+
+```{r, echo = F, fig.height=4.5, fig.width=9}
+par(mypar, mfrow = c(1,2))
+biplot(spe.h.pca, scaling = 1, main = "Scaling 1 = distance biplot")
+biplot(spe.h.pca, scaling = 2, main = "Scaling 2 = correlation biplot")
+```
+
+.pull-left[
+**Scaling 1**: 
+- distances among objects are approximations of Euclidean distances; 
+- the angles among descriptors vector are meaningless.
+
+.alert[Best for interpreting relationships among objects (sites)!]
+]
+
+.pull-right[**Scaling 2** (Default): 
+- angles between descriptors vectors reflect their correlations; 
+- distances among objects are not approximations of Euclidean distances.
+
+.alert[Best for interpreting relationships among descriptors (species)!]
+]
+
+---
+# Customized biplot
+
+- Extract species and site scores along the 1st and 2nd PC:
+```{r}
+spe.scores <- scores(spe.h.pca, display = "species", choices = 1:2)
+
+site.scores <- scores(spe.h.pca, display = "sites", choices = 1:2)
+```
+
+- Extract % of variation on the 1st and 2nd PC: 
+```{r}
+prop1 <- round(spe.h.pca$CA$eig[1]/sum(spe.h.pca$CA$eig)*100, 2)
+prop2 <- round(spe.h.pca$CA$eig[2]/sum(spe.h.pca$CA$eig)*100, 2)
+```
+
+---
+# Customized biplot
+
+Empty plot with informative axis labels
+```{r, echo = -1}
+par(mypar)
+plot(spe.h.pca, type = "none",
+     xlab = paste0("PC1 (", prop1, "%)"),
+     ylab = paste0("PC2 (", prop2, "%)"))
+```
+
+---
+# Customized biplot
+
+Add points for sites
+```{r, echo = 3}
+par(mypar)
+plot(spe.h.pca, type = "none",
+     xlab = paste0("PC1 (", prop1, "%)"),
+     ylab = paste0("PC2 (", prop2, "%)"))
+points(site.scores,
+       pch = 21, bg = "steelblue", cex  = 1.2)
+```
+
+---
+# Customized biplot
+
+Add arrows for species
+```{r, echo = 4}
+par(mypar)
+plot(spe.h.pca, type = "none",
+     xlab = paste0("PC1 (", prop1, "%)"),
+     ylab = paste0("PC2 (", prop2, "%)"))
+points(site.scores,
+       pch = 21, bg = "steelblue", cex  = 1.2)
+arrows(x0 = 0, y0 = 0, 
+       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+       length = 0.1) # size of arrow head
+```
+
+---
+# Customized biplot
+
+Add labels for species
+```{r, echo = 5}
+par(mypar)
+plot(spe.h.pca, type = "none",
+     xlab = paste0("PC1 (", prop1, "%)"),
+     ylab = paste0("PC2 (", prop2, "%)"))
+points(site.scores,
+       pch = 21, bg = "steelblue", cex  = 1.2)
+arrows(x0 = 0, y0 = 0, 
+       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+       length = 0.1)
+text(spe.scores[,1], spe.scores[,2],
+     labels = rownames(spe.scores),
+     col = "red3", cex = 0.8)
+```
+
+
+---
+# Customized biplot
+
+Complete code for the biplot
+```{r, eval = F}
+plot(spe.h.pca, type = "none",
+     xlab = paste0("PC1 (", prop1, "%)"),
+     ylab = paste0("PC2 (", prop2, "%)"))
+points(site.scores,
+       pch = 21, bg = "steelblue", cex  = 1.2)
+arrows(x0 = 0, y0 = 0, 
+       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+       length = 0.1)
+text(spe.scores[,1], spe.scores[,2],
+     labels = rownames(spe.scores),
+     col = "red3", cex = 0.8)
+```
+
+---
+class: inverse, center, middle
+
+# Constrained ordinations
+
+## Redundancy analysis - RDA
+
+---
+# RDA
+
+- RDA = combination of multiple regressions and a PCA.
+  
+- It allow us to identify and test relationships between a response matrix and explanatory matrix or matrices
+
+.center[ ![:scale 60%](images/RDA.png)]
+  
+- Explanatory variables can be quantitative, qualitative, or binary (0/1).
+
+<br>
+- .alert[Transform] species data and .alert[standardize] quantitative variables prior to running a RDA.
+
+---
+# Run the RDA
+
+- Model the effect of all environmental variables on fish community composition
+
+```{r}
+spe.rda <- rda(spe.hel ~., data = env.z) # "~." indicates all variables
+# or spe.rda <- rda(X = spe.hel, Y = env.z)
+```
+
+- .comment[It is better to use the formula interface which is more flexible (allows for factors and interaction among variables)], for example: `rda(spe.hel ~ var1 + var2*var3 + fac, data = env.z)`.
+- You can also control for a group of variables, for example you are interested in the effect var1,2,3 while holding constant var4,5:  `rda(spe.hel ~ var1 + var2*var3 + Condition(var4 + var5), data = env.z)`
+
+---
+# RDA output in R
+
+```{r, output.lines = 1:9}
+summary(spe.rda)
+```
+
+- **`Constrained Proportion`** ![:faic](arrow-right) variance of the response matrix explained by the environmental matrix
+ - .alert[(0.3557/0.5023 = 70.81%)]
+ - Equivalent of unadjusted R2
+- **`Unconstained Proportion`** ![:faic](arrow-right) unexplained variance in the response matrix
+  - .alert[(0.1467/0.5023 = 29.21%)]  
+  
+  
+
+
+---
+# RDA output in R
+
+```{r, output.lines = 11:25}
+summary(spe.rda)
+```
+
+- **`Eigenvalues, and their contribution to the variance`** ![:faic](arrow-right) eigenvalues for the canonical axes (RDA1 to RDA11) and the unconstrained axes (PC1 to PC18), as well as the cumulative proportion of .purple[**variance explained by the RDA axes**] and .purple[**represented by the residual PC axes**].
+- The first 2 RDA axes cumulatively explain 55% of the fish community variance.
+
+---
+# Selecting variables
+
+Using .alert[stepwise selection], we can select the explanatory variables that are significant.  
+  
+
+```{r}
+# Forward selection of variables:
+mod0 <- rda(spe.hel ~ 1, data = env.z)  # Model with intercept only
+rda.sel <- ordiR2step(mod0, # lower model limit
+               scope = formula(spe.rda), # upper model limit (full model)
+               direction = "forward", # could be backward or both
+               R2scope = TRUE, # can't surpass the full model's R2
+               step = 1000,
+               trace = FALSE) # change to TRUE to see the selection process!
+```
+
+.comment[Here, we are essentially adding one variable at a time, and retaining it if it significantly increases the model's adjusted R2.]
+
+---
+# Selecting variables
+
+- Which variables are retained by the forward selection?
+```{r}
+rda.sel$call
+```
+
+
+- What is the **adjusted R2** of the RDA with the selected variables?
+```{r}
+RsquareAdj(rda.sel)
+```
+
+How would you report these results in a paper?  
+- .comment[The selected environmental variables (dfs + oxy + bdo) explain .alert[51.43%] of the variation in fish community composition in the 30 sites along the Doubs river.]
+- Note: you should report the adjusted R2 which takes into account the number of explanatory variables.
+
+---
+# Significance testing
+
+Use `anova.cca()` to test the significance of your RDA.
+```{r}
+anova.cca(rda.sel, step = 1000)
+```
+
+You can also test the significance of each axis!
+```{r, eval = F}
+anova.cca(rda.sel, step = 1000, by = "axis")
+```
+
+You can also test the significance of each variable!
+```{r, eval = F}
+anova.cca(rda.sel, step = 1000, by = "term")
+```
+
+> The interpretation of the RDA must be preceded by a test of statistical significance. If your test is not significant, results should not be interpreted.
+
+---
+# RDA - Visualization
+
+The RDA allows the **simultaneous visualization** of your response and explanatory variables
+
+```{r, echo=-1, fig.width=11, fig.height=4.5}
+par(mfrow = c(1,2), mar=c(4,4,0,1), cex = 1.5)
+ordiplot(rda.sel, scaling = 1, type = "text")
+ordiplot(rda.sel, scaling = 2, type = "text")
+```
+
+.pull-left[
+**Scaling 1** distances among objects reflect their similarities
+]
+
+.pull-right[
+**Scaling 2** angles between variables (species and explanatory variables) reflect their correlation
+]
+
+---
+# RDA triplot - Scaling
+
+### Scaling 1 – .comment[distance triplot]
+
+.pull-left[
+```{r, echo=F}
+par(mypar)
+ordiplot(rda.sel, scaling = 1, type = "text")
+arrows(0, 0, scores(rda.sel, scaling = 1)$species[,1], 
+       scores(rda.sel, scaling = 1)$species[,2], 
+       length = .1, col = "red")
+```
+]
+
+.pull-right[
+- .alert[Distances among sites] approximate their Euclidean distances, i.e. sites that are close together share similar species. Idem for centroids of qualitative variables.
+- .alert[Projecting a site at right angle] on a response variable or a quantitative explanatory variable approximates the value of the site along that variable.
+- The .alert[angles between response and explanatory variables] reflect their correlations (*but not the angles among response variables*).  
+]
+---
+# RDA triplot - Scaling
+
+### Scaling 2 - .comment[correlation triplot]
+
+.pull-left[
+```{r, echo = F}
+par(mypar)
+ordiplot(rda.sel, scaling = 2, type = "text")
+arrows(0, 0, scores(rda.sel)$species[,1], 
+       scores(rda.sel)$species[,2], 
+       length = .1, col = "red")
+```
+]
+
+.pull-right[
+- The .alert[angles between *all* vector variables] reflect their correlations.
+- Distances among sites do **not** approximate their Euclidean distances. Idem for centroids of qualitative variables.
+- .alert[Projecting a site at right angle] on a response variable or a quantitative explanatory variable approximates the value of the site along that variable.
+- Environmental arrows that are .alert[along the first axis and longer]  are more important to explain the variation in the community matrix.     
+]
+
+---
+## Customizing RDA triplot
+
+Both `plot()` and `ordiplot()` make quick and simple ordination plots, but you can customize your plots by manually setting the aesthetics of points, text, and arrows.
+
+- Extract species and site scores along the 1st and 2nd RDA:
+```{r}
+spe.scores <- scores(rda.sel, display = "species", choices = 1:2) 
+site.scores <- scores(rda.sel, display = "sites", choices = 1:2)
+env.scores <- scores(rda.sel, display = "bp", choices= 1:2)
+# default: scaling = 2
+```
+
+- Extract % of variation on the 1st and 2nd RDA: 
+```{r}
+prop1 <- round(rda.sel$CCA$eig[1]/sum(rda.sel$CCA$eig)*100, 2)
+prop2 <- round(rda.sel$CCA$eig[2]/sum(rda.sel$CCA$eig)*100, 2)
+```
+---
+# Customizing RDA triplot
+
+```{r, eval = F}
+# Empty plot with axes
+plot(rda.sel, type = "none",
+     xlab = paste0("RDA1 (", prop1, "%)"),
+     ylab = paste0("RDA2 (", prop2, "%)"))
+
+# Points for sites
+points(site.scores,
+       pch = 19, col = alpha("grey", 0.5), cex  = 1.1)
+
+# Arrows and text for species
+arrows(x0 = 0, y0 = 0, 
+       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+       length = 0.1, col = "grey15")
+text(spe.scores[,1], 
+     spe.scores[,2]+sign(spe.scores[,2])*.02, # shift labels
+     labels = rownames(spe.scores),
+     col = "grey15", cex = 0.9)
+
+# Arrows and text for environmental variables
+arrows(x0 = 0, y0 = 0, 
+       x1 = env.scores[,1], y1 = env.scores[,2], 
+       length = 0.1, lwd = 1.5, col = "#CC3311")
+text(env.scores[,1]+sign(env.scores[,1])*.05, # shift labels
+     env.scores[,2],
+     labels = rownames(env.scores),
+     col = "#CC3311", cex = 1, font = 2)
+```
+
+
+---
+# Customizing RDA triplot
+
+```{r, echo = F, fig.width=7, fig.height=7}
+par(mypar)
+# Empty plot with axes
+plot(rda.sel, type = "none",
+     xlab = paste0("RDA1 (", prop1, "%)"),
+     ylab = paste0("RDA2 (", prop2, "%)"))
+# Points for sites
+points(site.scores,
+       pch = 19, col = alpha("grey", 0.5), cex  = 1.1)
+# Arrows and text for species
+arrows(x0 = 0, y0 = 0, 
+       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+       length = 0.1, col = "grey15")
+text(spe.scores[,1], 
+     spe.scores[,2]+sign(spe.scores[,2])*.02,
+     labels = rownames(spe.scores),
+     col = "grey15", cex = 0.9)
+# Arrows and text for environmental variables
+arrows(x0 = 0, y0 = 0, 
+       x1 = env.scores[,1], y1 = env.scores[,2], 
+       length = 0.1, lwd = 1.5, col = "#CC3311")
+text(env.scores[,1]+sign(env.scores[,1])*.05, 
+     env.scores[,2],
+     labels = rownames(env.scores),
+     col = "#CC3311", cex = 1, font = 2)
+```
+
+---
+# Customizing RDA triplot
+
+```{r, echo = 1, fig.width=7, fig.height=7}
+spe.scores <- spe.scores * 1.4
+# Empty plot with axes
+plot(rda.sel, type = "none",
+     xlab = paste0("RDA1 (", prop1, "%)"),
+     ylab = paste0("RDA2 (", prop2, "%)"))
+
+# Points for sites
+points(site.scores,
+       pch = 19, col = alpha("grey", 0.5), cex  = 1.1)
+
+# Arrows and text for species
+arrows(x0 = 0, y0 = 0, 
+       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+       length = 0.1, col = "grey15")
+text(spe.scores[,1], 
+     spe.scores[,2]+sign(spe.scores[,2])*.02, # shift labels
+     labels = rownames(spe.scores),
+     col = "grey15", cex = 0.9)
+
+# Arrows and text for environmental variables
+arrows(x0 = 0, y0 = 0, 
+       x1 = env.scores[,1], y1 = env.scores[,2], 
+       length = 0.1, lwd = 1.5, col = "#CC3311")
+text(env.scores[,1]+sign(env.scores[,1])*.05, # shift labels
+     env.scores[,2],
+     labels = rownames(env.scores),
+     col = "#CC3311", cex = 1, font = 2)
+```
+
+
+---
+class: inverse, center, middle
+
+# Thank you for attending this workshop!
