@@ -6,6 +6,8 @@
 1. Installer les packages R suivant
 
 ```R
+install.packages(c("tidyverse", "sf", "raster", "mapview", "vegan", "ade4",
+  "scales", "xaringan"))
 # Manipulation de données et figures
 library(tidyverse) # charge 8 packages
 # Spatial
@@ -13,7 +15,9 @@ library(sf)
 library(raster)
 library(mapview)
 # Ordinations
+library(ade4)
 library(vegan)
+library(scales)
 # Pour reproduire la présentation
 library(xaringan)
 ```

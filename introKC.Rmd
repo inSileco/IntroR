@@ -1,0 +1,172 @@
+---
+title: "Introduction to R"
+# subtitle: ""
+author: "Marie-Hélène Brice & Kevin Cazelles"
+date: "2019/26/03"
+output:
+  xaringan::moon_reader:
+    includes:
+      in_header: inSileco-header.html
+    lib_dir: assets
+    seal: false
+    css: ["default", "inSileco.css", "inSileco-fonts.css"]
+    nature:
+      beforeInit: "inSileco-macros.js"
+      highlightLines: false
+---
+
+```{r setup, echo = F}
+## Setup for your presentation
+library(knitr)
+
+opts_chunk$set(
+  eval = T,
+  cache = T,
+  comment = "#",
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width=5, fig.height=5,
+  fig.align = 'center'
+)
+
+
+hook_output <- knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  lines <- options$output.lines
+  if (is.null(lines)) {
+    return(hook_output(x, options))  # pass to default hook
+  }
+  x <- unlist(strsplit(x, "\n"))
+  more <- "..."
+  if (length(lines)==1) {        # first n lines
+    if (length(x) > lines) {
+      # truncate the output, but add ....
+      x <- c(head(x, lines), more)
+    }
+  } else {
+    x <- c(more, x[lines], more)
+  }
+  # paste these lines together
+  x <- paste(c(x, ""), collapse = "\n")
+  hook_output(x, options)
+})
+```
+
+```{r, echo = F}
+mypar = list(mar = c(3,3,1,0.5), mgp = c(1.6, 0.3, 0), tck = -.02, cex = 1.5)
+
+options(repos=structure(c(CRAN="http://cran.r-project.org")))
+```
+
+```{r, include = FALSE}
+if (!require(vegan)) install.packages("vegan")
+library(vegan)
+if (!require(ade4)) install.packages("ade4")
+library(ade4)
+if (!require(scales)) install.packages("scales")
+library(scales)
+```
+
+class: inverse, center, middle
+
+# R?
+
+## :thinking_face:
+
+
+---
+# R
+
+<br>
+
+> R is a programming language and free software environment for statistical computing and graphics [...].
+
+<br>
+
+> The R language is widely used among statisticians and data miners for developing statistical software and data analysis. Polls, data mining surveys, and studies of scholarly literature databases show substantial increases in popularity in recent years.
+
+[R (programming language) -- Wikipedia](https://en.wikipedia.org/wiki/R_(programming_language)
+
+
+---
+# R, Python, Julia, ...
+
+.center[![:scale 80%](images/redmonk.png)]
+
+[Python](https://www.python.org/) / [Julia](https://julialang.org/)
+
+
+
+---
+# R is popular
+
+.center[![:scale 80%](https://revolution-computing.typepad.com/.a/6a010534b1db25970b01b8d2594d25970c-800wi)]
+
+
+---
+# R is popular
+<br>
+
+- [R project](https://www.r-project.org/)
+- [CRAN](https://cran.r-project.org/)
+- [MetaCRAN](https://www.r-pkg.org/)
+- [R Package Documentation](https://rdrr.io/)
+
+
+
+---
+# R, RStudio, Ropenscience?
+<br>
+
+- [R project](https://www.r-project.org/)
+- [RStudio](https://www.rstudio.com/)
+- [rOpenSci](https://ropensci.org)
+
+
+---
+# Let's start
+<br>
+
+- R console / R GUI / RStudio / ...
+
+```R
+install.packages(c("tidyverse", "sf", "raster", "mapview", "vegan", "ade4",
+  "scales", "xaringan"))
+# Manipulation de données et figures
+library(tidyverse) # charge 8 packages
+# Spatial
+library(sf)
+library(raster)
+library(mapview)
+# Ordinations
+library(ade4)
+library(vegan)
+library(scales)
+# Pour reproduire la présentation
+library(xaringan)
+```
+
+
+
+---
+# Outline
+<br>
+
+- data manipulations ~1h
+- *coffee break* ~ 10min
+- data visualization ~1h30
+- *lunch break*
+- mapping ~1h30
+- *coffee break* ~ 10min
+- ordination ~1h30
+
+
+
+
+
+class: inverse, center, middle
+
+# data manipulations
+
+## :thinking_face:
