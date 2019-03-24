@@ -24,7 +24,7 @@ class: inverse, center, middle
 
 # R?
 
-## :thinking_face:
+## &lt;i class="fa fa-commenting-o" aria-hidden="true"&gt;&lt;/i&gt;
 
 
 ---
@@ -58,6 +58,15 @@ class: inverse, center, middle
 
 ---
 # R is popular
+
+1. Efficient data manipulation
+2. Many package
+3. stats everywhere
+4. Extensions ++
+
+
+---
+# R is popular
 &lt;br&gt;
 
 - [R project](https://www.r-project.org/)
@@ -69,11 +78,45 @@ class: inverse, center, middle
 
 ---
 # R, RStudio, Ropenscience?
-&lt;br&gt;
+
+## Main links
 
 - [R project](https://www.r-project.org/)
 - [RStudio](https://www.rstudio.com/)
 - [rOpenSci](https://ropensci.org)
+
+## Get reliable documentation
+
+- [CRAN Manual &amp; Contributed](https://cran.r-project.org/)
+- [bookdown](https://bookdown.org/)
+- [RStudio](https://www.rstudio.com/)
+  - [Cheat Sheets](https://www.rstudio.com/resources/cheatsheets/)
+  - [Webinars](https://resources.rstudio.com/webinars)
+- [QCBS](https://qcbsrworkshops.github.io/Workshops/)
+- [&lt;i class="fa fa-stack-overflow" aria-hidden="true"&gt;&lt;/i&gt;](https://stackoverflow.com/questions/tagged/r)
+
+
+---
+# Outline
+&lt;br&gt;
+
+- data manipulations ~ 50min
+- data visualization ~1h
+- *lunch break*
+- mapping ~ 1h30
+- *coffee break* ~ 10min
+- ordination ~1h30
+
+
+
+
+---
+class: inverse, center, middle
+
+# Data manipulation
+
+## &lt;i class="fa fa-wrench" aria-hidden="true"&gt;&lt;/i&gt;
+
 
 
 ---
@@ -85,43 +128,494 @@ class: inverse, center, middle
 ```R
 install.packages(c("tidyverse", "sf", "raster", "mapview", "vegan", "ade4",
   "scales", "xaringan"))
-# Manipulation de données et figures
-library(tidyverse) # charge 8 packages
-# Spatial
-library(sf)
-library(raster)
-library(mapview)
-# Ordinations
-library(ade4)
-library(vegan)
-library(scales)
-# Pour reproduire la présentation
-library(xaringan)
 ```
+
+---
+# R's principles
+
+1. Everything is R is an object
+
+
+```r
+class(2)
+# [1] "numeric"
+class("A")
+# [1] "character"
+class(library)
+# [1] "function"
+plot
+# function (x, y, ...) 
+# UseMethod("plot")
+# &lt;bytecode: 0x55831015c7f8&gt;
+# &lt;environment: namespace:graphics&gt;
+```
+
+2. Everything that is happening is R is a function call
+
+3. interface
+
+
+---
+# Basic commands
+
+
+```r
+2+2
+# [1] 4
+let &lt;- LETTERS[1:10]
+# NB: = works too
+let
+#  [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J"
+let2 &lt;- sample(let, 5)
+let2
+# [1] "J" "G" "H" "I" "E"
+```
+
+Get documentation
+
+```R
+?sample
+```
+
+---
+# Basic commands
+
+
+```r
+vec &lt;- c(2:5, 9:12, 18)
+vec
+# [1]  2  3  4  5  9 10 11 12 18
+```
+
+---
+# vector and matrix
+
+
+```r
+vec
+# [1]  2  3  4  5  9 10 11 12 18
+let
+#  [1] "A" "B" "C" "D" "E" "F" "G" "H" "I" "J"
+# vector of size 1
+let[1]
+# [1] "A"
+```
+
+
+```r
+# use arguments
+mat &lt;- matrix(1, ncol = 3, nrow = 6)
+mat
+#      [,1] [,2] [,3]
+# [1,]    1    1    1
+# [2,]    1    1    1
+# [3,]    1    1    1
+# [4,]    1    1    1
+# [5,]    1    1    1
+# [6,]    1    1    1
+mat[1,2]
+# [1] 1
+mat[,2]
+# [1] 1 1 1 1 1 1
+mat[3,2]
+# [1] 1
+```
+
+
+---
+# data frames
+
+
+```r
+library(datasets)
+head(CO2)
+# Grouped Data: uptake ~ conc | Plant
+#   Plant   Type  Treatment conc uptake
+# 1   Qn1 Quebec nonchilled   95   16.0
+# 2   Qn1 Quebec nonchilled  175   30.4
+# 3   Qn1 Quebec nonchilled  250   34.8
+# 4   Qn1 Quebec nonchilled  350   37.2
+# 5   Qn1 Quebec nonchilled  500   35.3
+# 6   Qn1 Quebec nonchilled  675   39.2
+```
+
+
+```r
+CO2[2,1]
+# [1] Qn1
+# 12 Levels: Qn1 &lt; Qn2 &lt; Qn3 &lt; Qc1 &lt; Qc3 &lt; Qc2 &lt; Mn3 &lt; Mn2 &lt; Mn1 &lt; ... &lt; Mc1
+CO2[,1]
+#  [1] Qn1 Qn1 Qn1 Qn1 Qn1 Qn1 Qn1 Qn2 Qn2 Qn2 Qn2 Qn2 Qn2 Qn2 Qn3 Qn3 Qn3
+# [18] Qn3 Qn3 Qn3 Qn3 Qc1 Qc1 Qc1 Qc1 Qc1 Qc1 Qc1 Qc2 Qc2 Qc2 Qc2 Qc2 Qc2
+# [35] Qc2 Qc3 Qc3 Qc3 Qc3 Qc3 Qc3 Qc3 Mn1 Mn1 Mn1 Mn1 Mn1 Mn1 Mn1 Mn2 Mn2
+# [52] Mn2 Mn2 Mn2 Mn2 Mn2 Mn3 Mn3 Mn3 Mn3 Mn3 Mn3 Mn3 Mc1 Mc1 Mc1 Mc1 Mc1
+# [69] Mc1 Mc1 Mc2 Mc2 Mc2 Mc2 Mc2 Mc2 Mc2 Mc3 Mc3 Mc3 Mc3 Mc3 Mc3 Mc3
+# 12 Levels: Qn1 &lt; Qn2 &lt; Qn3 &lt; Qc1 &lt; Qc3 &lt; Qc2 &lt; Mn3 &lt; Mn2 &lt; Mn1 &lt; ... &lt; Mc1
+CO2$Plant
+#  [1] Qn1 Qn1 Qn1 Qn1 Qn1 Qn1 Qn1 Qn2 Qn2 Qn2 Qn2 Qn2 Qn2 Qn2 Qn3 Qn3 Qn3
+# [18] Qn3 Qn3 Qn3 Qn3 Qc1 Qc1 Qc1 Qc1 Qc1 Qc1 Qc1 Qc2 Qc2 Qc2 Qc2 Qc2 Qc2
+# [35] Qc2 Qc3 Qc3 Qc3 Qc3 Qc3 Qc3 Qc3 Mn1 Mn1 Mn1 Mn1 Mn1 Mn1 Mn1 Mn2 Mn2
+# [52] Mn2 Mn2 Mn2 Mn2 Mn2 Mn3 Mn3 Mn3 Mn3 Mn3 Mn3 Mn3 Mc1 Mc1 Mc1 Mc1 Mc1
+# [69] Mc1 Mc1 Mc2 Mc2 Mc2 Mc2 Mc2 Mc2 Mc2 Mc3 Mc3 Mc3 Mc3 Mc3 Mc3 Mc3
+# 12 Levels: Qn1 &lt; Qn2 &lt; Qn3 &lt; Qc1 &lt; Qc3 &lt; Qc2 &lt; Mn3 &lt; Mn2 &lt; Mn1 &lt; ... &lt; Mc1
+```
+
+
+---
+# Lists
+
+
+```r
+mylist &lt;- list(CO2, mat, let[1], awesome = "cool")
+names(mylist)
+# [1] ""        ""        ""        "awesome"
+mylist$awesome
+# [1] "cool"
+mylist[1:2]
+# [[1]]
+# Grouped Data: uptake ~ conc | Plant
+#    Plant        Type  Treatment conc uptake
+# 1    Qn1      Quebec nonchilled   95   16.0
+# 2    Qn1      Quebec nonchilled  175   30.4
+# 3    Qn1      Quebec nonchilled  250   34.8
+# 4    Qn1      Quebec nonchilled  350   37.2
+# 5    Qn1      Quebec nonchilled  500   35.3
+# 6    Qn1      Quebec nonchilled  675   39.2
+# 7    Qn1      Quebec nonchilled 1000   39.7
+# 8    Qn2      Quebec nonchilled   95   13.6
+# 9    Qn2      Quebec nonchilled  175   27.3
+# 10   Qn2      Quebec nonchilled  250   37.1
+# 11   Qn2      Quebec nonchilled  350   41.8
+# 12   Qn2      Quebec nonchilled  500   40.6
+# 13   Qn2      Quebec nonchilled  675   41.4
+# 14   Qn2      Quebec nonchilled 1000   44.3
+# 15   Qn3      Quebec nonchilled   95   16.2
+# 16   Qn3      Quebec nonchilled  175   32.4
+# 17   Qn3      Quebec nonchilled  250   40.3
+# 18   Qn3      Quebec nonchilled  350   42.1
+# 19   Qn3      Quebec nonchilled  500   42.9
+# 20   Qn3      Quebec nonchilled  675   43.9
+# 21   Qn3      Quebec nonchilled 1000   45.5
+# 22   Qc1      Quebec    chilled   95   14.2
+# 23   Qc1      Quebec    chilled  175   24.1
+# 24   Qc1      Quebec    chilled  250   30.3
+# 25   Qc1      Quebec    chilled  350   34.6
+# 26   Qc1      Quebec    chilled  500   32.5
+# 27   Qc1      Quebec    chilled  675   35.4
+# 28   Qc1      Quebec    chilled 1000   38.7
+# 29   Qc2      Quebec    chilled   95    9.3
+# 30   Qc2      Quebec    chilled  175   27.3
+# 31   Qc2      Quebec    chilled  250   35.0
+# 32   Qc2      Quebec    chilled  350   38.8
+# 33   Qc2      Quebec    chilled  500   38.6
+# 34   Qc2      Quebec    chilled  675   37.5
+# 35   Qc2      Quebec    chilled 1000   42.4
+# 36   Qc3      Quebec    chilled   95   15.1
+# 37   Qc3      Quebec    chilled  175   21.0
+# 38   Qc3      Quebec    chilled  250   38.1
+# 39   Qc3      Quebec    chilled  350   34.0
+# 40   Qc3      Quebec    chilled  500   38.9
+# 41   Qc3      Quebec    chilled  675   39.6
+# 42   Qc3      Quebec    chilled 1000   41.4
+# 43   Mn1 Mississippi nonchilled   95   10.6
+# 44   Mn1 Mississippi nonchilled  175   19.2
+# 45   Mn1 Mississippi nonchilled  250   26.2
+# 46   Mn1 Mississippi nonchilled  350   30.0
+# 47   Mn1 Mississippi nonchilled  500   30.9
+# 48   Mn1 Mississippi nonchilled  675   32.4
+# 49   Mn1 Mississippi nonchilled 1000   35.5
+# 50   Mn2 Mississippi nonchilled   95   12.0
+# 51   Mn2 Mississippi nonchilled  175   22.0
+# 52   Mn2 Mississippi nonchilled  250   30.6
+# 53   Mn2 Mississippi nonchilled  350   31.8
+# 54   Mn2 Mississippi nonchilled  500   32.4
+# 55   Mn2 Mississippi nonchilled  675   31.1
+# 56   Mn2 Mississippi nonchilled 1000   31.5
+# 57   Mn3 Mississippi nonchilled   95   11.3
+# 58   Mn3 Mississippi nonchilled  175   19.4
+# 59   Mn3 Mississippi nonchilled  250   25.8
+# 60   Mn3 Mississippi nonchilled  350   27.9
+# 61   Mn3 Mississippi nonchilled  500   28.5
+# 62   Mn3 Mississippi nonchilled  675   28.1
+# 63   Mn3 Mississippi nonchilled 1000   27.8
+# 64   Mc1 Mississippi    chilled   95   10.5
+# 65   Mc1 Mississippi    chilled  175   14.9
+# 66   Mc1 Mississippi    chilled  250   18.1
+# 67   Mc1 Mississippi    chilled  350   18.9
+# 68   Mc1 Mississippi    chilled  500   19.5
+# 69   Mc1 Mississippi    chilled  675   22.2
+# 70   Mc1 Mississippi    chilled 1000   21.9
+# 71   Mc2 Mississippi    chilled   95    7.7
+# 72   Mc2 Mississippi    chilled  175   11.4
+# 73   Mc2 Mississippi    chilled  250   12.3
+# 74   Mc2 Mississippi    chilled  350   13.0
+# 75   Mc2 Mississippi    chilled  500   12.5
+# 76   Mc2 Mississippi    chilled  675   13.7
+# 77   Mc2 Mississippi    chilled 1000   14.4
+# 78   Mc3 Mississippi    chilled   95   10.6
+# 79   Mc3 Mississippi    chilled  175   18.0
+# 80   Mc3 Mississippi    chilled  250   17.9
+# 81   Mc3 Mississippi    chilled  350   17.9
+# 82   Mc3 Mississippi    chilled  500   17.9
+# 83   Mc3 Mississippi    chilled  675   18.9
+# 84   Mc3 Mississippi    chilled 1000   19.9
+# 
+# [[2]]
+#      [,1] [,2] [,3]
+# [1,]    1    1    1
+# [2,]    1    1    1
+# [3,]    1    1    1
+# [4,]    1    1    1
+# [5,]    1    1    1
+# [6,]    1    1    1
+mylist[[1]]
+# Grouped Data: uptake ~ conc | Plant
+#    Plant        Type  Treatment conc uptake
+# 1    Qn1      Quebec nonchilled   95   16.0
+# 2    Qn1      Quebec nonchilled  175   30.4
+# 3    Qn1      Quebec nonchilled  250   34.8
+# 4    Qn1      Quebec nonchilled  350   37.2
+# 5    Qn1      Quebec nonchilled  500   35.3
+# 6    Qn1      Quebec nonchilled  675   39.2
+# 7    Qn1      Quebec nonchilled 1000   39.7
+# 8    Qn2      Quebec nonchilled   95   13.6
+# 9    Qn2      Quebec nonchilled  175   27.3
+# 10   Qn2      Quebec nonchilled  250   37.1
+# 11   Qn2      Quebec nonchilled  350   41.8
+# 12   Qn2      Quebec nonchilled  500   40.6
+# 13   Qn2      Quebec nonchilled  675   41.4
+# 14   Qn2      Quebec nonchilled 1000   44.3
+# 15   Qn3      Quebec nonchilled   95   16.2
+# 16   Qn3      Quebec nonchilled  175   32.4
+# 17   Qn3      Quebec nonchilled  250   40.3
+# 18   Qn3      Quebec nonchilled  350   42.1
+# 19   Qn3      Quebec nonchilled  500   42.9
+# 20   Qn3      Quebec nonchilled  675   43.9
+# 21   Qn3      Quebec nonchilled 1000   45.5
+# 22   Qc1      Quebec    chilled   95   14.2
+# 23   Qc1      Quebec    chilled  175   24.1
+# 24   Qc1      Quebec    chilled  250   30.3
+# 25   Qc1      Quebec    chilled  350   34.6
+# 26   Qc1      Quebec    chilled  500   32.5
+# 27   Qc1      Quebec    chilled  675   35.4
+# 28   Qc1      Quebec    chilled 1000   38.7
+# 29   Qc2      Quebec    chilled   95    9.3
+# 30   Qc2      Quebec    chilled  175   27.3
+# 31   Qc2      Quebec    chilled  250   35.0
+# 32   Qc2      Quebec    chilled  350   38.8
+# 33   Qc2      Quebec    chilled  500   38.6
+# 34   Qc2      Quebec    chilled  675   37.5
+# 35   Qc2      Quebec    chilled 1000   42.4
+# 36   Qc3      Quebec    chilled   95   15.1
+# 37   Qc3      Quebec    chilled  175   21.0
+# 38   Qc3      Quebec    chilled  250   38.1
+# 39   Qc3      Quebec    chilled  350   34.0
+# 40   Qc3      Quebec    chilled  500   38.9
+# 41   Qc3      Quebec    chilled  675   39.6
+# 42   Qc3      Quebec    chilled 1000   41.4
+# 43   Mn1 Mississippi nonchilled   95   10.6
+# 44   Mn1 Mississippi nonchilled  175   19.2
+# 45   Mn1 Mississippi nonchilled  250   26.2
+# 46   Mn1 Mississippi nonchilled  350   30.0
+# 47   Mn1 Mississippi nonchilled  500   30.9
+# 48   Mn1 Mississippi nonchilled  675   32.4
+# 49   Mn1 Mississippi nonchilled 1000   35.5
+# 50   Mn2 Mississippi nonchilled   95   12.0
+# 51   Mn2 Mississippi nonchilled  175   22.0
+# 52   Mn2 Mississippi nonchilled  250   30.6
+# 53   Mn2 Mississippi nonchilled  350   31.8
+# 54   Mn2 Mississippi nonchilled  500   32.4
+# 55   Mn2 Mississippi nonchilled  675   31.1
+# 56   Mn2 Mississippi nonchilled 1000   31.5
+# 57   Mn3 Mississippi nonchilled   95   11.3
+# 58   Mn3 Mississippi nonchilled  175   19.4
+# 59   Mn3 Mississippi nonchilled  250   25.8
+# 60   Mn3 Mississippi nonchilled  350   27.9
+# 61   Mn3 Mississippi nonchilled  500   28.5
+# 62   Mn3 Mississippi nonchilled  675   28.1
+# 63   Mn3 Mississippi nonchilled 1000   27.8
+# 64   Mc1 Mississippi    chilled   95   10.5
+# 65   Mc1 Mississippi    chilled  175   14.9
+# 66   Mc1 Mississippi    chilled  250   18.1
+# 67   Mc1 Mississippi    chilled  350   18.9
+# 68   Mc1 Mississippi    chilled  500   19.5
+# 69   Mc1 Mississippi    chilled  675   22.2
+# 70   Mc1 Mississippi    chilled 1000   21.9
+# 71   Mc2 Mississippi    chilled   95    7.7
+# 72   Mc2 Mississippi    chilled  175   11.4
+# 73   Mc2 Mississippi    chilled  250   12.3
+# 74   Mc2 Mississippi    chilled  350   13.0
+# 75   Mc2 Mississippi    chilled  500   12.5
+# 76   Mc2 Mississippi    chilled  675   13.7
+# 77   Mc2 Mississippi    chilled 1000   14.4
+# 78   Mc3 Mississippi    chilled   95   10.6
+# 79   Mc3 Mississippi    chilled  175   18.0
+# 80   Mc3 Mississippi    chilled  250   17.9
+# 81   Mc3 Mississippi    chilled  350   17.9
+# 82   Mc3 Mississippi    chilled  500   17.9
+# 83   Mc3 Mississippi    chilled  675   18.9
+# 84   Mc3 Mississippi    chilled 1000   19.9
+```
+
+
+---
+# For loops
+
+
+NB while loop infinite loop until a certain condition is met
+
+---
+# Logical conditions
+
+vec &lt;- 1:10
+vec  &gt; 5
+vec[vec&gt;5]
 
 
 
 ---
-# Outline
-&lt;br&gt;
-
-- data manipulations ~1h
-- *coffee break* ~ 10min
-- data visualization ~1h30
-- *lunch break*
-- mapping ~1h30
-- *coffee break* ~ 10min
-- ordination ~1h30
-
-
-
-
-
 class: inverse, center, middle
 
-# data manipulations
+# Questions?
 
-## :thinking_face:
+## &lt;i class="fa fa-question-circle-o" aria-hidden="true"&gt;&lt;/i&gt;
+
+
+---
+# Tidyverse - a metapackage
+
+&lt;br&gt;
+
+
+
+```r
+library(tidyverse)
+```
+
+### &lt;i class="fa fa-wrench" aria-hidden="true"&gt;&lt;/i&gt; A great tool belt for data science [&lt;i class="fa fa-external-link" aria-hidden="true"&gt;&lt;/i&gt;](https://www.tidyverse.org/)
+
+--
+
+- &lt;i class="fa fa-check" aria-hidden="true"&gt;&lt;/i&gt; Pros:
+  - Well-documented, intuitive,
+  - efficient,
+  - very popular
+
+- &lt;i class="fa fa-exclamation-triangle" aria-hidden="true"&gt;&lt;/i&gt;Cons:
+  - an alternative way of doing the same manipulation things,
+  - prevent the user from learning programming basis
+
+
+---
+# Tidyverse - what will be used and covered
+
+
+
+---
+# Basic data manipulations
+
+0. Read files
+
+1. Filter
+
+2. Select
+
+3. Mutate
+
+4. Aggregate
+
+5. Joint
+
+6. figure / write files
+
+
+
+---
+# Read a file
+
+read.csv
+readr::read_csv
+
+read.table
+package to connect to sql, mongodb,
+XXX fchier speciaux geol??
+
+
+
+---
+# ade4
+
+
+```r
+library(ade4)
+df &lt;- data(doubs)
+```
+
+---
+# Piping
+
+
+---
+# Filter
+
+---
+# Select
+
+---
+# Mutate
+
+---
+# Aggregate
+
+---
+# Joint
+
+---
+# Write files
+
+
+
+
+
+
+
+---
+class: inverse, center, middle
+
+# Data visualization
+
+## &lt;i class="fa fa-bar-chart" aria-hidden="true"&gt;&lt;/i&gt;
+
+
+---
+# graphics, grid and more
+
+
+
+---
+# ggplot2
+
+
+---
+# What's the big idea
+
+1. grammar of graohics
+
+2. yourplot &lt;- gg_XX1 + gg_XX2 + gg_XX3
+
+3. new plots? Code a new gg_XXX
+
+
+
+---
+# histograms
+
+
+---
+# pie chart
+
+---
+# get circular
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
