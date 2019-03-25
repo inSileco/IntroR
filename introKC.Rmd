@@ -51,6 +51,8 @@ knit_hooks$set(output = function(x, options) {
   x <- paste(c(x, ""), collapse = "\n")
   hook_output(x, options)
 })
+
+options(width = 92)
 ```
 
 ```{r, echo = F}
@@ -71,12 +73,18 @@ library(scales)
 ---
 # Aims
 
+<br>
+
+### &nbsp; Better ideas about what R actually is
+### &nbsp; Better ideas about what R can do
+### &nbsp; Better ideas about the topics covered
+
 ---
 # Outline
 
-### &nbsp; <i class="fa fa-commenting-o" aria-hidden="true"></i> R?
+### &nbsp; <i class="fa fa-commenting-o" aria-hidden="true"></i> R? ~10min
 ### &nbsp; <i class="fa fa-wrench" aria-hidden="true"></i> Data manipulations ~1h
-### &nbsp; <i class="fa fa-bar-chart" aria-hidden="true"></i> Data visualization (part1) ~50min
+### &nbsp; <i class="fa fa-bar-chart" aria-hidden="true"></i> Data visualization (part1) ~45min
 ### &nbsp; <i class="fa fa-cutlery" aria-hidden="true"></i> Lunch break 12pm
 ### &nbsp; <i class="fa fa-bar-chart" aria-hidden="true"></i> Data visualization (part2) ~30min
 ### &nbsp; <i class="fa fa-map" aria-hidden="true"></i> mapping ~ 1h30
@@ -182,6 +190,13 @@ class: inverse, center, middle
 <br>
 
 - Open R console / R GUI / RStudio / ...
+
+--
+
+```R
+getwd()
+setwd("pasth2workingdirectory")
+```
 
 --
 
@@ -331,6 +346,7 @@ let[let > "C"]
 # use arguments
 mat <- matrix(1:18, ncol = 3, nrow = 6)
 mat
+dim(mat)
 mat[1,2]
 ```
 --
@@ -356,6 +372,7 @@ df <- data.frame(
 )
 df
 class(df)
+dim(df)
 ```
 
 ---
@@ -521,73 +538,347 @@ library(tidyverse)
   - prevents the user from learning programming basics
 
 
----
-# Tidyverse - what will be used and covered
-
-
 
 ---
 # Basic data manipulations
-<br>
 
-1. Read and write files
-
-2. Filter
-
-3. Select
-
-4. Mutate
-
-5. Aggregate
-
-6. Joint
-
-7. Cast and Melt
-
+### &nbsp; 1. Import data / read file(s) <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> get R object(s)
+### &nbsp; 2. Select / Filter <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> find the data of interest
+### &nbsp; 3. Join <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> combine data
+### &nbsp; 4. Mutate / Aggregate <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> create new data
+### &nbsp; 5. Cast and Melt <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Format your data
+### &nbsp; 6. R object(s) <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Export data / write file(s)
 
 
 
 ---
 # Read a file
 
-read.csv
-readr::read_csv
+```{R, read}
+df2 <- read.csv("data/environ.csv")
+head(df2, 3)
+class(df2)
+```
+--
 
-read.table
-package to connect to sql, mongodb,
-XXX fchier speciaux geol??
+```{R, readr}
+df3 <- read_csv("data/environ.csv")
+head(df3, 3)
+class(df3)
+```
 
+--
+
+- `read.table()`
+- [SQL in R](http://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/sql.html)
+- [MongoDB in R](https://jeroen.github.io/mongolite/)
+- [MariaDB](https://mariadb.com/kb/en/library/r-statistical-programming-using-mariadb-as-the-background-database/)
+
+---
+# Dataset 'doubs' in package 'ade4'
+<br>
+
+```{R, doubs}
+library(ade4)
+data(doubs)
+# ?doubs
+```
+
+--
+
+```{R}
+class(doubs)
+names(doubs)
+head(doubs$env)
+```
 
 
 ---
-# ade4
+# Dataset 'doubs' in package 'ade4'
+<br>
 
 ```{R}
-library(ade4)
-df <- data(doubs)
+as_tibble(doubs$env)
 ```
 
 ---
 # Piping
 
+--
 
----
-# Filter
+```{R, pip1}
+res <- as_tibble(data.frame(res = log(diff(exp(1:6)))))
+res
+```
+
+--
+
+```{R, pip2}
+# library(magrittr)
+res <- 1:6 %>% exp %>% diff %>% log %>% as.data.frame(col.names = "res") %>% as_tibble
+res
+```
+
 
 ---
 # Select
 
+--
+
+```{R}
+denv <- as_tibble(doubs$env)
+dim(denv)
+names(denv)
+head(denv, 20)
+```
+
+---
+# Select
+
+```{R}
+head(denv[, c(1:2, 5)])
+head(denv[, c("dfs", "alt", "pH")])
+```
+
+---
+# Select
+
+```{R}
+denvS <- denv %>% select(dfs, alt, pH)
+head(denvS)
+```
+
+```{R}
+denvS <- denv %>% select(alt, pH, dfs)
+head(denvS)
+```
+
+
+---
+# Select
+
+```{R}
+head(denv[, -c(1:2, 5)])
+# head(denv[, -c("dfs", "alt", "pH")]) won't work
+```
+
+```{R}
+denv %>% select(-dfs, -alt, -pH)
+```
+
+
+---
+# Filter
+
+```{R}
+denv$alt
+```
+
+--
+
+```{R, filter}
+denvF <- denv %>% dplyr::filter(alt > 400)
+denvF
+```
+
+---
+# Filter
+<br>
+
+```{R}
+denvF2 <- denv %>% dplyr::filter(alt > 400 & pH>=80)
+denvF2
+```
+
+---
+# Filter
+<br>
+
+```{R}
+denvF3 <- denv %>% dplyr::filter(alt > 600 | pH>=82)
+denvF3
+```
+
+---
+# Filter
+<br>
+
+Selection + Filter
+
+--
+
+```{R}
+denvF4 <- denv %>% select(dfs, alt, pH) %>% dplyr::filter(alt > 400 & pH>=80)
+denvF4
+```
+
+
 ---
 # Mutate
+<br>
+
+--
+
+```{R, mutate}
+denvM <- denv %>% mutate(pH2 = pH + 1)
+denvM
+```
+
+---
+# Mutate
+<br>
+
+
+```{R}
+denvM2 <- denv %>% mutate(index = 2*nit + pho + amm)
+denvM2
+```
+
+
+---
+# Mutate
+
+```{R}
+denvM3 <- denv %>%
+  select(dfs, alt, pH, nit, pho, amm) %>%
+  dplyr::filter(alt > 400) %>%
+  mutate(pH2 = pH + 1) %>%
+  mutate(index = 2*nit + pho + amm)
+denvM3
+```
+
+---
+# Mutate
+
+```{R}
+model <- denv %>%
+  select(dfs, alt, pH, nit, pho, amm) %>%
+  dplyr::filter(alt > 400) %>%
+  mutate(pH2 = pH + 1) %>%
+  mutate(index = 2*nit + pho + amm) %>%
+  lm(index ~ pH2, data = .)
+summary(model)
+```
+
+---
+class: inverse, center, middle
+
+# Questions?
+
+## <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+
+
+
+
+---
+# Join
+<br>
+
+--
+
+
+```{R}
+dfis <- doubs$fish
+head(denv, 4)
+head(dfis, 4)
+```
+
+---
+# Join
+<br>
+
+```{R}
+denv <- denv %>% mutate(idSite = 1:nrow(denv))
+head(denv, 4)
+
+dfis$idSite <- 1:nrow(denv)
+head(dfis, 4)
+```
+
+---
+# Join
+<br>
+
+```{R}
+dmerg <- denv %>% inner_join(dfis)
+head(dmerg)
+dim(dmerg)
+```
+
+---
+# Join
+
+### Different way of joining data frame [(see documentation)](https://dplyr.tidyverse.org/reference/join.html)
+
+
+```{R}
+dmerg1 <- denv[-1,] %>% inner_join(dfis[-2,])
+dim(dmerg1)
+```
+
+--
+
+```{R}
+dmerg2 <- denv[-1,] %>% right_join(dfis[-2,])
+dmerg3 <- denv[-1,] %>% left_join(dfis[-2,])
+dmerg4 <- denv[-1,] %>% full_join(dfis[-2,])
+dim(dmerg2)
+dim(dmerg3)
+dim(dmerg4)
+```
+
 
 ---
 # Aggregate
 
+--
+
+```{R}
+denv2 <- denv %>% mutate(nit2 = nit >=100)
+denv2
+```
+
 ---
-# Joint
+# Aggregate
+
+
+```{R}
+denv2$alt2 <- "low"
+denv2$alt2[denv2$alt>450] <- "medium"
+denv2$alt2[denv2$alt>750] <- "high"
+denv2$alt2 <- as.factor(denv2$alt2)
+denv2
+```
+
+
+---
+# Aggregate
+
+```{R}
+denv2 %>% group_by(nit2) %>% summarize(n())
+```
+
+
 
 ---
 # Write files
+
+### Write data frames
+
+```{R, write}
+write.csv(dmerg, "output/dmerg.csv")
+write_csv(dmerg, "output/dmerg2.csv")
+```
+--
+
+### Write any R objects
+
+```{R}
+saveRDS(doubs, "output/doubs.rds")
+# readRDS("output/dmerg.rds")
+write_rds(doubs, "output/doubs.rds")
+# read_rds
+```
 
 
 

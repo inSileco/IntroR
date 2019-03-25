@@ -23,12 +23,18 @@
 ---
 # Aims
 
+&lt;br&gt;
+
+### &amp;nbsp; Better ideas about what R actually is
+### &amp;nbsp; Better ideas about what R can do
+### &amp;nbsp; Better ideas about the topics covered
+
 ---
 # Outline
 
-### &amp;nbsp; &lt;i class="fa fa-commenting-o" aria-hidden="true"&gt;&lt;/i&gt; R?
+### &amp;nbsp; &lt;i class="fa fa-commenting-o" aria-hidden="true"&gt;&lt;/i&gt; R? ~10min
 ### &amp;nbsp; &lt;i class="fa fa-wrench" aria-hidden="true"&gt;&lt;/i&gt; Data manipulations ~1h
-### &amp;nbsp; &lt;i class="fa fa-bar-chart" aria-hidden="true"&gt;&lt;/i&gt; Data visualization (part1) ~50min
+### &amp;nbsp; &lt;i class="fa fa-bar-chart" aria-hidden="true"&gt;&lt;/i&gt; Data visualization (part1) ~45min
 ### &amp;nbsp; &lt;i class="fa fa-cutlery" aria-hidden="true"&gt;&lt;/i&gt; Lunch break 12pm
 ### &amp;nbsp; &lt;i class="fa fa-bar-chart" aria-hidden="true"&gt;&lt;/i&gt; Data visualization (part2) ~30min
 ### &amp;nbsp; &lt;i class="fa fa-map" aria-hidden="true"&gt;&lt;/i&gt; mapping ~ 1h30
@@ -137,6 +143,13 @@ class: inverse, center, middle
 
 --
 
+```R
+getwd()
+setwd("pasth2workingdirectory")
+```
+
+--
+
 - Install the following packages
 
 ```R
@@ -186,7 +199,7 @@ class(library)
 plot
 # function (x, y, ...) 
 # UseMethod("plot")
-# &lt;bytecode: 0x55d839bdb7f8&gt;
+# &lt;bytecode: 0x55aa349e47f8&gt;
 # &lt;environment: namespace:graphics&gt;
 ```
 
@@ -325,6 +338,8 @@ mat
 # [4,]    4   10   16
 # [5,]    5   11   17
 # [6,]    6   12   18
+dim(mat)
+# [1] 6 3
 mat[1,2]
 # [1] 7
 ```
@@ -366,6 +381,8 @@ df
 # 5      E   9  TRUE
 class(df)
 # [1] "data.frame"
+dim(df)
+# [1] 5 3
 ```
 
 ---
@@ -447,22 +464,14 @@ head(CO2)
 names(CO2)
 # [1] "Plant"     "Type"      "Treatment" "conc"      "uptake"
 summary(CO2)
-#      Plant             Type         Treatment       conc     
-#  Qn1    : 7   Quebec     :42   nonchilled:42   Min.   :  95  
-#  Qn2    : 7   Mississippi:42   chilled   :42   1st Qu.: 175  
-#  Qn3    : 7                                    Median : 350  
-#  Qc1    : 7                                    Mean   : 435  
-#  Qc3    : 7                                    3rd Qu.: 675  
-#  Qc2    : 7                                    Max.   :1000  
-#  (Other):42                                                  
-#      uptake     
-#  Min.   : 7.70  
-#  1st Qu.:17.90  
-#  Median :28.30  
-#  Mean   :27.21  
-#  3rd Qu.:37.12  
-#  Max.   :45.50  
-# 
+#      Plant             Type         Treatment       conc          uptake     
+#  Qn1    : 7   Quebec     :42   nonchilled:42   Min.   :  95   Min.   : 7.70  
+#  Qn2    : 7   Mississippi:42   chilled   :42   1st Qu.: 175   1st Qu.:17.90  
+#  Qn3    : 7                                    Median : 350   Median :28.30  
+#  Qc1    : 7                                    Mean   : 435   Mean   :27.21  
+#  Qc3    : 7                                    3rd Qu.: 675   3rd Qu.:37.12  
+#  Qc2    : 7                                    Max.   :1000   Max.   :45.50  
+#  (Other):42
 ```
 
 --
@@ -470,12 +479,11 @@ summary(CO2)
 
 ```r
 CO2$Plant
-#  [1] Qn1 Qn1 Qn1 Qn1 Qn1 Qn1 Qn1 Qn2 Qn2 Qn2 Qn2 Qn2 Qn2 Qn2 Qn3 Qn3 Qn3
-# [18] Qn3 Qn3 Qn3 Qn3 Qc1 Qc1 Qc1 Qc1 Qc1 Qc1 Qc1 Qc2 Qc2 Qc2 Qc2 Qc2 Qc2
-# [35] Qc2 Qc3 Qc3 Qc3 Qc3 Qc3 Qc3 Qc3 Mn1 Mn1 Mn1 Mn1 Mn1 Mn1 Mn1 Mn2 Mn2
-# [52] Mn2 Mn2 Mn2 Mn2 Mn2 Mn3 Mn3 Mn3 Mn3 Mn3 Mn3 Mn3 Mc1 Mc1 Mc1 Mc1 Mc1
-# [69] Mc1 Mc1 Mc2 Mc2 Mc2 Mc2 Mc2 Mc2 Mc2 Mc3 Mc3 Mc3 Mc3 Mc3 Mc3 Mc3
-# 12 Levels: Qn1 &lt; Qn2 &lt; Qn3 &lt; Qc1 &lt; Qc3 &lt; Qc2 &lt; Mn3 &lt; Mn2 &lt; Mn1 &lt; ... &lt; Mc1
+#  [1] Qn1 Qn1 Qn1 Qn1 Qn1 Qn1 Qn1 Qn2 Qn2 Qn2 Qn2 Qn2 Qn2 Qn2 Qn3 Qn3 Qn3 Qn3 Qn3 Qn3 Qn3 Qc1
+# [23] Qc1 Qc1 Qc1 Qc1 Qc1 Qc1 Qc2 Qc2 Qc2 Qc2 Qc2 Qc2 Qc2 Qc3 Qc3 Qc3 Qc3 Qc3 Qc3 Qc3 Mn1 Mn1
+# [45] Mn1 Mn1 Mn1 Mn1 Mn1 Mn2 Mn2 Mn2 Mn2 Mn2 Mn2 Mn2 Mn3 Mn3 Mn3 Mn3 Mn3 Mn3 Mn3 Mc1 Mc1 Mc1
+# [67] Mc1 Mc1 Mc1 Mc1 Mc2 Mc2 Mc2 Mc2 Mc2 Mc2 Mc2 Mc3 Mc3 Mc3 Mc3 Mc3 Mc3 Mc3
+# Levels: Qn1 &lt; Qn2 &lt; Qn3 &lt; Qc1 &lt; Qc3 &lt; Qc2 &lt; Mn3 &lt; Mn2 &lt; Mn1 &lt; Mc2 &lt; Mc3 &lt; Mc1
 ```
 
 
@@ -635,72 +643,725 @@ library(tidyverse)
   - prevents the user from learning programming basics
 
 
----
-# Tidyverse - what will be used and covered
-
-
 
 ---
 # Basic data manipulations
 
-0. Read files
-
-1. Filter
-
-2. Select
-
-3. Mutate
-
-4. Aggregate
-
-5. Joint
-
-6. figure / write files
+### &amp;nbsp; 1. Import data / read file(s) &lt;i class="fa fa-arrow-circle-right" aria-hidden="true"&gt;&lt;/i&gt; get R object(s)
+### &amp;nbsp; 2. Select / Filter &lt;i class="fa fa-arrow-circle-right" aria-hidden="true"&gt;&lt;/i&gt; find the data of interest
+### &amp;nbsp; 3. Join &lt;i class="fa fa-arrow-circle-right" aria-hidden="true"&gt;&lt;/i&gt; combine data
+### &amp;nbsp; 4. Mutate / Aggregate &lt;i class="fa fa-arrow-circle-right" aria-hidden="true"&gt;&lt;/i&gt; create new data
+### &amp;nbsp; 5. Cast and Melt &lt;i class="fa fa-arrow-circle-right" aria-hidden="true"&gt;&lt;/i&gt; Format your data
+### &amp;nbsp; 6. R object(s) &lt;i class="fa fa-arrow-circle-right" aria-hidden="true"&gt;&lt;/i&gt; Export data / write file(s)
 
 
 
 ---
 # Read a file
 
-read.csv
-readr::read_csv
 
-read.table
-package to connect to sql, mongodb,
-XXX fchier speciaux geol??
+```r
+df2 &lt;- read.csv("data/environ.csv")
+head(df2, 3)
+#   dfs alt   slo flo pH har pho nit amm oxy bdo
+# 1   3 934 6.176  84 79  45   1  20   0 122  27
+# 2  22 932 3.434 100 80  40   2  20  10 103  19
+# 3 102 914 3.638 180 83  52   5  22   5 105  35
+class(df2)
+# [1] "data.frame"
+```
+--
 
 
+```r
+df3 &lt;- read_csv("data/environ.csv")
+head(df3, 3)
+# # A tibble: 3 x 11
+#     dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+# 1     3   934  6.18    84    79    45     1    20     0   122    27
+# 2    22   932  3.43   100    80    40     2    20    10   103    19
+# 3   102   914  3.64   180    83    52     5    22     5   105    35
+class(df3)
+# [1] "spec_tbl_df" "tbl_df"      "tbl"         "data.frame"
+```
+
+--
+
+- `read.table()`
+- [SQL in R](http://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/sql.html)
+- [MongoDB in R](https://jeroen.github.io/mongolite/)
+- [MariaDB](https://mariadb.com/kb/en/library/r-statistical-programming-using-mariadb-as-the-background-database/)
 
 ---
-# ade4
+# Dataset 'doubs' in package 'ade4'
+&lt;br&gt;
 
 
 ```r
 library(ade4)
-df &lt;- data(doubs)
+data(doubs)
+# ?doubs
+```
+
+--
+
+
+```r
+class(doubs)
+# [1] "list"
+names(doubs)
+# [1] "env"     "fish"    "xy"      "species"
+head(doubs$env)
+#   dfs alt   slo flo pH har pho nit amm oxy bdo
+# 1   3 934 6.176  84 79  45   1  20   0 122  27
+# 2  22 932 3.434 100 80  40   2  20  10 103  19
+# 3 102 914 3.638 180 83  52   5  22   5 105  35
+# 4 185 854 3.497 253 80  72  10  21   0 110  13
+# 5 215 849 3.178 264 81  84  38  52  20  80  62
+# 6 324 846 3.497 286 79  60  20  15   0 102  53
+```
+
+
+---
+# Dataset 'doubs' in package 'ade4'
+&lt;br&gt;
+
+
+```r
+as_tibble(doubs$env)
+# # A tibble: 30 x 11
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1     3   934  6.18    84    79    45     1    20     0   122    27
+#  2    22   932  3.43   100    80    40     2    20    10   103    19
+#  3   102   914  3.64   180    83    52     5    22     5   105    35
+#  4   185   854  3.50   253    80    72    10    21     0   110    13
+#  5   215   849  3.18   264    81    84    38    52    20    80    62
+#  6   324   846  3.50   286    79    60    20    15     0   102    53
+#  7   268   841  4.20   400    81    88     7    15     0   111    22
+#  8   491   792  3.26   130    81    94    20    41    12    70    81
+#  9   705   752  2.56   480    80    90    30    82    12    72    52
+# 10   990   617  4.61  1000    77    82     6    75     1   100    43
+# # … with 20 more rows
 ```
 
 ---
 # Piping
 
+--
 
----
-# Filter
+
+```r
+res &lt;- as_tibble(data.frame(res = log(diff(exp(1:6)))))
+res
+# # A tibble: 5 x 1
+#     res
+#   &lt;dbl&gt;
+# 1  1.54
+# 2  2.54
+# 3  3.54
+# 4  4.54
+# 5  5.54
+```
+
+--
+
+
+```r
+# library(magrittr)
+res &lt;- 1:6 %&gt;% exp %&gt;% diff %&gt;% log %&gt;% as.data.frame(col.names = "res") %&gt;% as_tibble
+res
+# # A tibble: 5 x 1
+#       .
+#   &lt;dbl&gt;
+# 1  1.54
+# 2  2.54
+# 3  3.54
+# 4  4.54
+# 5  5.54
+```
+
 
 ---
 # Select
 
+--
+
+
+```r
+denv &lt;- as_tibble(doubs$env)
+dim(denv)
+# [1] 30 11
+names(denv)
+#  [1] "dfs" "alt" "slo" "flo" "pH"  "har" "pho" "nit" "amm" "oxy" "bdo"
+head(denv, 20)
+# # A tibble: 20 x 11
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1     3   934  6.18    84    79    45     1    20     0   122    27
+#  2    22   932  3.43   100    80    40     2    20    10   103    19
+#  3   102   914  3.64   180    83    52     5    22     5   105    35
+#  4   185   854  3.50   253    80    72    10    21     0   110    13
+#  5   215   849  3.18   264    81    84    38    52    20    80    62
+#  6   324   846  3.50   286    79    60    20    15     0   102    53
+#  7   268   841  4.20   400    81    88     7    15     0   111    22
+#  8   491   792  3.26   130    81    94    20    41    12    70    81
+#  9   705   752  2.56   480    80    90    30    82    12    72    52
+# 10   990   617  4.61  1000    77    82     6    75     1   100    43
+# 11  1234   483  3.74  1990    81    96    30   160     0   115    27
+# 12  1324   477  2.83  2000    79    86     4    50     0   122    30
+# 13  1436   450  3.09  2110    81    98     6    52     0   124    24
+# 14  1522   434  2.56  2120    83    98    27   123     0   123    38
+# 15  1645   415  1.79  2300    86    86    40   100     0   117    21
+# 16  1859   375  3.04  1610    80    88    20   200     5   103    27
+# 17  1985   348  1.79  2430    80    92    20   250    20   102    46
+# 18  2110   332  2.20  2500    80    90    50   220    20   103    28
+# 19  2246   310  1.79  2590    81    84    60   220    15   106    33
+# 20  2477   286  2.20  2680    80    86    30   300    30   103    28
+```
+
+---
+# Select
+
+
+```r
+head(denv[, c(1:2, 5)])
+# # A tibble: 6 x 3
+#     dfs   alt    pH
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+# 1     3   934    79
+# 2    22   932    80
+# 3   102   914    83
+# 4   185   854    80
+# 5   215   849    81
+# 6   324   846    79
+head(denv[, c("dfs", "alt", "pH")])
+# # A tibble: 6 x 3
+#     dfs   alt    pH
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+# 1     3   934    79
+# 2    22   932    80
+# 3   102   914    83
+# 4   185   854    80
+# 5   215   849    81
+# 6   324   846    79
+```
+
+---
+# Select
+
+
+```r
+denvS &lt;- denv %&gt;% select(dfs, alt, pH)
+head(denvS)
+# # A tibble: 6 x 3
+#     dfs   alt    pH
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+# 1     3   934    79
+# 2    22   932    80
+# 3   102   914    83
+# 4   185   854    80
+# 5   215   849    81
+# 6   324   846    79
+```
+
+
+```r
+denvS &lt;- denv %&gt;% select(alt, pH, dfs)
+head(denvS)
+# # A tibble: 6 x 3
+#     alt    pH   dfs
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+# 1   934    79     3
+# 2   932    80    22
+# 3   914    83   102
+# 4   854    80   185
+# 5   849    81   215
+# 6   846    79   324
+```
+
+
+---
+# Select
+
+
+```r
+head(denv[, -c(1:2, 5)])
+# # A tibble: 6 x 8
+#     slo   flo   har   pho   nit   amm   oxy   bdo
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+# 1  6.18    84    45     1    20     0   122    27
+# 2  3.43   100    40     2    20    10   103    19
+# 3  3.64   180    52     5    22     5   105    35
+# 4  3.50   253    72    10    21     0   110    13
+# 5  3.18   264    84    38    52    20    80    62
+# 6  3.50   286    60    20    15     0   102    53
+# head(denv[, -c("dfs", "alt", "pH")]) won't work
+```
+
+
+```r
+denv %&gt;% select(-dfs, -alt, -pH)
+# # A tibble: 30 x 8
+#      slo   flo   har   pho   nit   amm   oxy   bdo
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1  6.18    84    45     1    20     0   122    27
+#  2  3.43   100    40     2    20    10   103    19
+#  3  3.64   180    52     5    22     5   105    35
+#  4  3.50   253    72    10    21     0   110    13
+#  5  3.18   264    84    38    52    20    80    62
+#  6  3.50   286    60    20    15     0   102    53
+#  7  4.20   400    88     7    15     0   111    22
+#  8  3.26   130    94    20    41    12    70    81
+#  9  2.56   480    90    30    82    12    72    52
+# 10  4.61  1000    82     6    75     1   100    43
+# # … with 20 more rows
+```
+
+
+---
+# Filter
+
+
+```r
+denv$alt
+#  [1] 934 932 914 854 849 846 841 792 752 617 483 477 450 434 415 375 348 332 310 286 262 254
+# [23] 246 241 231 214 206 195 183 172
+```
+
+--
+
+
+```r
+denvF &lt;- denv %&gt;% dplyr::filter(alt &gt; 400)
+denvF
+# # A tibble: 15 x 11
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1     3   934  6.18    84    79    45     1    20     0   122    27
+#  2    22   932  3.43   100    80    40     2    20    10   103    19
+#  3   102   914  3.64   180    83    52     5    22     5   105    35
+#  4   185   854  3.50   253    80    72    10    21     0   110    13
+#  5   215   849  3.18   264    81    84    38    52    20    80    62
+#  6   324   846  3.50   286    79    60    20    15     0   102    53
+#  7   268   841  4.20   400    81    88     7    15     0   111    22
+#  8   491   792  3.26   130    81    94    20    41    12    70    81
+#  9   705   752  2.56   480    80    90    30    82    12    72    52
+# 10   990   617  4.61  1000    77    82     6    75     1   100    43
+# 11  1234   483  3.74  1990    81    96    30   160     0   115    27
+# 12  1324   477  2.83  2000    79    86     4    50     0   122    30
+# 13  1436   450  3.09  2110    81    98     6    52     0   124    24
+# 14  1522   434  2.56  2120    83    98    27   123     0   123    38
+# 15  1645   415  1.79  2300    86    86    40   100     0   117    21
+```
+
+---
+# Filter
+&lt;br&gt;
+
+
+```r
+denvF2 &lt;- denv %&gt;% dplyr::filter(alt &gt; 400 &amp; pH&gt;=80)
+denvF2
+# # A tibble: 11 x 11
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1    22   932  3.43   100    80    40     2    20    10   103    19
+#  2   102   914  3.64   180    83    52     5    22     5   105    35
+#  3   185   854  3.50   253    80    72    10    21     0   110    13
+#  4   215   849  3.18   264    81    84    38    52    20    80    62
+#  5   268   841  4.20   400    81    88     7    15     0   111    22
+#  6   491   792  3.26   130    81    94    20    41    12    70    81
+#  7   705   752  2.56   480    80    90    30    82    12    72    52
+#  8  1234   483  3.74  1990    81    96    30   160     0   115    27
+#  9  1436   450  3.09  2110    81    98     6    52     0   124    24
+# 10  1522   434  2.56  2120    83    98    27   123     0   123    38
+# 11  1645   415  1.79  2300    86    86    40   100     0   117    21
+```
+
+---
+# Filter
+&lt;br&gt;
+
+
+```r
+denvF3 &lt;- denv %&gt;% dplyr::filter(alt &gt; 600 | pH&gt;=82)
+denvF3
+# # A tibble: 14 x 11
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1     3   934  6.18    84    79    45     1    20     0   122    27
+#  2    22   932  3.43   100    80    40     2    20    10   103    19
+#  3   102   914  3.64   180    83    52     5    22     5   105    35
+#  4   185   854  3.50   253    80    72    10    21     0   110    13
+#  5   215   849  3.18   264    81    84    38    52    20    80    62
+#  6   324   846  3.50   286    79    60    20    15     0   102    53
+#  7   268   841  4.20   400    81    88     7    15     0   111    22
+#  8   491   792  3.26   130    81    94    20    41    12    70    81
+#  9   705   752  2.56   480    80    90    30    82    12    72    52
+# 10   990   617  4.61  1000    77    82     6    75     1   100    43
+# 11  1522   434  2.56  2120    83    98    27   123     0   123    38
+# 12  1645   415  1.79  2300    86    86    40   100     0   117    21
+# 13  3947   195  1.39  4320    83   100    74   400    30    81    45
+# 14  4530   172  1.10  6900    82   109    65   160    10    82    44
+```
+
+---
+# Filter
+&lt;br&gt;
+
+Selection + Filter
+
+--
+
+
+```r
+denvF4 &lt;- denv %&gt;% select(dfs, alt, pH) %&gt;% dplyr::filter(alt &gt; 400 &amp; pH&gt;=80)
+denvF4
+# # A tibble: 11 x 3
+#      dfs   alt    pH
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1    22   932    80
+#  2   102   914    83
+#  3   185   854    80
+#  4   215   849    81
+#  5   268   841    81
+#  6   491   792    81
+#  7   705   752    80
+#  8  1234   483    81
+#  9  1436   450    81
+# 10  1522   434    83
+# 11  1645   415    86
+```
+
+
 ---
 # Mutate
+&lt;br&gt;
+
+--
+
+
+```r
+denvM &lt;- denv %&gt;% mutate(pH2 = pH + 1)
+denvM
+# # A tibble: 30 x 12
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo   pH2
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1     3   934  6.18    84    79    45     1    20     0   122    27    80
+#  2    22   932  3.43   100    80    40     2    20    10   103    19    81
+#  3   102   914  3.64   180    83    52     5    22     5   105    35    84
+#  4   185   854  3.50   253    80    72    10    21     0   110    13    81
+#  5   215   849  3.18   264    81    84    38    52    20    80    62    82
+#  6   324   846  3.50   286    79    60    20    15     0   102    53    80
+#  7   268   841  4.20   400    81    88     7    15     0   111    22    82
+#  8   491   792  3.26   130    81    94    20    41    12    70    81    82
+#  9   705   752  2.56   480    80    90    30    82    12    72    52    81
+# 10   990   617  4.61  1000    77    82     6    75     1   100    43    78
+# # … with 20 more rows
+```
+
+---
+# Mutate
+&lt;br&gt;
+
+
+
+```r
+denvM2 &lt;- denv %&gt;% mutate(index = 2*nit + pho + amm)
+denvM2
+# # A tibble: 30 x 12
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo index
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1     3   934  6.18    84    79    45     1    20     0   122    27    41
+#  2    22   932  3.43   100    80    40     2    20    10   103    19    52
+#  3   102   914  3.64   180    83    52     5    22     5   105    35    54
+#  4   185   854  3.50   253    80    72    10    21     0   110    13    52
+#  5   215   849  3.18   264    81    84    38    52    20    80    62   162
+#  6   324   846  3.50   286    79    60    20    15     0   102    53    50
+#  7   268   841  4.20   400    81    88     7    15     0   111    22    37
+#  8   491   792  3.26   130    81    94    20    41    12    70    81   114
+#  9   705   752  2.56   480    80    90    30    82    12    72    52   206
+# 10   990   617  4.61  1000    77    82     6    75     1   100    43   157
+# # … with 20 more rows
+```
+
+
+---
+# Mutate
+
+
+```r
+denvM3 &lt;- denv %&gt;%
+  select(dfs, alt, pH, nit, pho, amm) %&gt;%
+  dplyr::filter(alt &gt; 400) %&gt;%
+  mutate(pH2 = pH + 1) %&gt;%
+  mutate(index = 2*nit + pho + amm)
+denvM3
+# # A tibble: 15 x 8
+#      dfs   alt    pH   nit   pho   amm   pH2 index
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+#  1     3   934    79    20     1     0    80    41
+#  2    22   932    80    20     2    10    81    52
+#  3   102   914    83    22     5     5    84    54
+#  4   185   854    80    21    10     0    81    52
+#  5   215   849    81    52    38    20    82   162
+#  6   324   846    79    15    20     0    80    50
+#  7   268   841    81    15     7     0    82    37
+#  8   491   792    81    41    20    12    82   114
+#  9   705   752    80    82    30    12    81   206
+# 10   990   617    77    75     6     1    78   157
+# 11  1234   483    81   160    30     0    82   350
+# 12  1324   477    79    50     4     0    80   104
+# 13  1436   450    81    52     6     0    82   110
+# 14  1522   434    83   123    27     0    84   273
+# 15  1645   415    86   100    40     0    87   240
+```
+
+---
+# Mutate
+
+
+```r
+model &lt;- denv %&gt;%
+  select(dfs, alt, pH, nit, pho, amm) %&gt;%
+  dplyr::filter(alt &gt; 400) %&gt;%
+  mutate(pH2 = pH + 1) %&gt;%
+  mutate(index = 2*nit + pho + amm) %&gt;%
+  lm(index ~ pH2, data = .)
+summary(model)
+# 
+# Call:
+# lm(formula = index ~ pH2, data = .)
+# 
+# Residuals:
+#     Min      1Q  Median      3Q     Max 
+# -117.64  -66.20  -23.96   54.46  212.04 
+# 
+# Coefficients:
+#             Estimate Std. Error t value Pr(&gt;|t|)
+# (Intercept) -1243.01     959.57  -1.295    0.218
+# pH2            16.84      11.74   1.435    0.175
+# 
+# Residual standard error: 93.11 on 13 degrees of freedom
+# Multiple R-squared:  0.1367,	Adjusted R-squared:  0.07033 
+# F-statistic: 2.059 on 1 and 13 DF,  p-value: 0.1749
+```
+
+---
+class: inverse, center, middle
+
+# Questions?
+
+## &lt;i class="fa fa-question-circle-o" aria-hidden="true"&gt;&lt;/i&gt;
+
+
+
+
+---
+# Join
+&lt;br&gt;
+
+--
+
+
+
+```r
+dfis &lt;- doubs$fish
+head(denv, 4)
+# # A tibble: 4 x 11
+#     dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+# 1     3   934  6.18    84    79    45     1    20     0   122    27
+# 2    22   932  3.43   100    80    40     2    20    10   103    19
+# 3   102   914  3.64   180    83    52     5    22     5   105    35
+# 4   185   854  3.50   253    80    72    10    21     0   110    13
+head(dfis, 4)
+#   Cogo Satr Phph Neba Thth Teso Chna Chto Lele Lece Baba Spbi Gogo Eslu Pefl Rham Legi Scer
+# 1    0    3    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+# 2    0    5    4    3    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+# 3    0    5    5    5    0    0    0    0    0    0    0    0    0    1    0    0    0    0
+# 4    0    4    5    5    0    0    0    0    0    1    0    0    1    2    2    0    0    0
+#   Cyca Titi Abbr Icme Acce Ruru Blbj Alal Anan
+# 1    0    0    0    0    0    0    0    0    0
+# 2    0    0    0    0    0    0    0    0    0
+# 3    0    0    0    0    0    0    0    0    0
+# 4    0    1    0    0    0    0    0    0    0
+```
+
+---
+# Join
+&lt;br&gt;
+
+
+```r
+denv &lt;- denv %&gt;% mutate(idSite = 1:nrow(denv))
+head(denv, 4)
+# # A tibble: 4 x 12
+#     dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo idSite
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;int&gt;
+# 1     3   934  6.18    84    79    45     1    20     0   122    27      1
+# 2    22   932  3.43   100    80    40     2    20    10   103    19      2
+# 3   102   914  3.64   180    83    52     5    22     5   105    35      3
+# 4   185   854  3.50   253    80    72    10    21     0   110    13      4
+
+dfis$idSite &lt;- 1:nrow(denv)
+head(dfis, 4)
+#   Cogo Satr Phph Neba Thth Teso Chna Chto Lele Lece Baba Spbi Gogo Eslu Pefl Rham Legi Scer
+# 1    0    3    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+# 2    0    5    4    3    0    0    0    0    0    0    0    0    0    0    0    0    0    0
+# 3    0    5    5    5    0    0    0    0    0    0    0    0    0    1    0    0    0    0
+# 4    0    4    5    5    0    0    0    0    0    1    0    0    1    2    2    0    0    0
+#   Cyca Titi Abbr Icme Acce Ruru Blbj Alal Anan idSite
+# 1    0    0    0    0    0    0    0    0    0      1
+# 2    0    0    0    0    0    0    0    0    0      2
+# 3    0    0    0    0    0    0    0    0    0      3
+# 4    0    1    0    0    0    0    0    0    0      4
+```
+
+---
+# Join
+&lt;br&gt;
+
+
+```r
+dmerg &lt;- denv %&gt;% inner_join(dfis)
+head(dmerg)
+# # A tibble: 6 x 39
+#     dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo idSite  Cogo  Satr  Phph
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+# 1     3   934  6.18    84    79    45     1    20     0   122    27      1     0     3     0
+# 2    22   932  3.43   100    80    40     2    20    10   103    19      2     0     5     4
+# 3   102   914  3.64   180    83    52     5    22     5   105    35      3     0     5     5
+# 4   185   854  3.50   253    80    72    10    21     0   110    13      4     0     4     5
+# 5   215   849  3.18   264    81    84    38    52    20    80    62      5     0     2     3
+# 6   324   846  3.50   286    79    60    20    15     0   102    53      6     0     3     4
+# # … with 24 more variables: Neba &lt;dbl&gt;, Thth &lt;dbl&gt;, Teso &lt;dbl&gt;, Chna &lt;dbl&gt;, Chto &lt;dbl&gt;,
+# #   Lele &lt;dbl&gt;, Lece &lt;dbl&gt;, Baba &lt;dbl&gt;, Spbi &lt;dbl&gt;, Gogo &lt;dbl&gt;, Eslu &lt;dbl&gt;, Pefl &lt;dbl&gt;,
+# #   Rham &lt;dbl&gt;, Legi &lt;dbl&gt;, Scer &lt;dbl&gt;, Cyca &lt;dbl&gt;, Titi &lt;dbl&gt;, Abbr &lt;dbl&gt;, Icme &lt;dbl&gt;,
+# #   Acce &lt;dbl&gt;, Ruru &lt;dbl&gt;, Blbj &lt;dbl&gt;, Alal &lt;dbl&gt;, Anan &lt;dbl&gt;
+dim(dmerg)
+# [1] 30 39
+```
+
+---
+# Join
+
+### Different way of joining data frame [(see documentation)](https://dplyr.tidyverse.org/reference/join.html)
+
+
+
+```r
+dmerg1 &lt;- denv[-1,] %&gt;% inner_join(dfis[-2,])
+dim(dmerg1)
+# [1] 28 39
+```
+
+--
+
+
+```r
+dmerg2 &lt;- denv[-1,] %&gt;% right_join(dfis[-2,])
+dmerg3 &lt;- denv[-1,] %&gt;% left_join(dfis[-2,])
+dmerg4 &lt;- denv[-1,] %&gt;% full_join(dfis[-2,])
+dim(dmerg2)
+# [1] 29 39
+dim(dmerg3)
+# [1] 29 39
+dim(dmerg4)
+# [1] 30 39
+```
+
 
 ---
 # Aggregate
 
+--
+
+
+```r
+denv2 &lt;- denv %&gt;% mutate(nit2 = nit &gt;=100)
+denv2
+# # A tibble: 30 x 13
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo idSite nit2 
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;int&gt; &lt;lgl&gt;
+#  1     3   934  6.18    84    79    45     1    20     0   122    27      1 FALSE
+#  2    22   932  3.43   100    80    40     2    20    10   103    19      2 FALSE
+#  3   102   914  3.64   180    83    52     5    22     5   105    35      3 FALSE
+#  4   185   854  3.50   253    80    72    10    21     0   110    13      4 FALSE
+#  5   215   849  3.18   264    81    84    38    52    20    80    62      5 FALSE
+#  6   324   846  3.50   286    79    60    20    15     0   102    53      6 FALSE
+#  7   268   841  4.20   400    81    88     7    15     0   111    22      7 FALSE
+#  8   491   792  3.26   130    81    94    20    41    12    70    81      8 FALSE
+#  9   705   752  2.56   480    80    90    30    82    12    72    52      9 FALSE
+# 10   990   617  4.61  1000    77    82     6    75     1   100    43     10 FALSE
+# # … with 20 more rows
+```
+
 ---
-# Joint
+# Aggregate
+
+
+
+```r
+denv2$alt2 &lt;- "low"
+denv2$alt2[denv2$alt&gt;450] &lt;- "medium"
+denv2$alt2[denv2$alt&gt;750] &lt;- "high"
+denv2$alt2 &lt;- as.factor(denv2$alt2)
+denv2
+# # A tibble: 30 x 14
+#      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo idSite nit2  alt2  
+#    &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;int&gt; &lt;lgl&gt; &lt;fct&gt; 
+#  1     3   934  6.18    84    79    45     1    20     0   122    27      1 FALSE high  
+#  2    22   932  3.43   100    80    40     2    20    10   103    19      2 FALSE high  
+#  3   102   914  3.64   180    83    52     5    22     5   105    35      3 FALSE high  
+#  4   185   854  3.50   253    80    72    10    21     0   110    13      4 FALSE high  
+#  5   215   849  3.18   264    81    84    38    52    20    80    62      5 FALSE high  
+#  6   324   846  3.50   286    79    60    20    15     0   102    53      6 FALSE high  
+#  7   268   841  4.20   400    81    88     7    15     0   111    22      7 FALSE high  
+#  8   491   792  3.26   130    81    94    20    41    12    70    81      8 FALSE high  
+#  9   705   752  2.56   480    80    90    30    82    12    72    52      9 FALSE high  
+# 10   990   617  4.61  1000    77    82     6    75     1   100    43     10 FALSE medium
+# # … with 20 more rows
+```
+
+---
+# Aggregate
+
+
+```r
+denv2 %&gt;% group_by(nit2) %&gt;% summarize(n())
+# # A tibble: 2 x 2
+#   nit2  `n()`
+#   &lt;lgl&gt; &lt;int&gt;
+# 1 FALSE    12
+# 2 TRUE     18
+```
+
+
 
 ---
 # Write files
+
+### Write data frames
+
+
+```r
+write.csv(dmerg, "output/dmerg.csv")
+write_csv(dmerg, "output/dmerg2.csv")
+```
+--
+
+### Write any R objects
+
+
+```r
+saveRDS(doubs, "output/doubs.rds")
+# readRDS("output/dmerg.rds")
+write_rds(doubs, "output/doubs.rds")
+# read_rds
+```
 
 
 
