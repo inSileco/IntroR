@@ -171,6 +171,7 @@ class: inverse, center, middle
   - [Cheat Sheets](https://www.rstudio.com/resources/cheatsheets/)
   - [Webinars](https://resources.rstudio.com/webinars)
 - [QCBS](https://qcbsrworkshops.github.io/Workshops/)
+- [DataCarpentery](https://datacarpentry.org/R-genomics/index.html)
 - [<i class="fa fa-stack-overflow" aria-hidden="true"></i>](https://stackoverflow.com/questions/tagged/r)
 
 
@@ -830,17 +831,18 @@ dim(dmerg4)
 
 ---
 # Aggregate
+<br>
 
 --
 
 ```{R}
-denv2 <- denv %>% mutate(nit2 = nit >=100)
+denv2 <- denv %>% mutate(nit2 = nit >=125)
 denv2
 ```
 
 ---
 # Aggregate
-
+<br>
 
 ```{R}
 denv2$alt2 <- "low"
@@ -853,11 +855,22 @@ denv2
 
 ---
 # Aggregate
+<br>
 
 ```{R}
 denv2 %>% group_by(nit2) %>% summarize(n())
+denv2 %>% group_by(nit2, alt2) %>% summarize(n())
 ```
 
+---
+# Aggregate
+<br>
+
+```{R}
+denv2 %>% group_by(nit2) %>% summarize(n())
+denv2 %>% group_by(nit2, alt2) %>%
+  summarize(nb_obs = n(), mean_amm = mean(amm), sd_oxy = sd(oxy))
+```
 
 
 ---

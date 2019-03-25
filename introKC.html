@@ -121,6 +121,7 @@ class: inverse, center, middle
   - [Cheat Sheets](https://www.rstudio.com/resources/cheatsheets/)
   - [Webinars](https://resources.rstudio.com/webinars)
 - [QCBS](https://qcbsrworkshops.github.io/Workshops/)
+- [DataCarpentery](https://datacarpentry.org/R-genomics/index.html)
 - [&lt;i class="fa fa-stack-overflow" aria-hidden="true"&gt;&lt;/i&gt;](https://stackoverflow.com/questions/tagged/r)
 
 
@@ -199,7 +200,7 @@ class(library)
 plot
 # function (x, y, ...) 
 # UseMethod("plot")
-# &lt;bytecode: 0x55aa349e47f8&gt;
+# &lt;bytecode: 0x556243d7d7f8&gt;
 # &lt;environment: namespace:graphics&gt;
 ```
 
@@ -1276,12 +1277,13 @@ dim(dmerg4)
 
 ---
 # Aggregate
+&lt;br&gt;
 
 --
 
 
 ```r
-denv2 &lt;- denv %&gt;% mutate(nit2 = nit &gt;=100)
+denv2 &lt;- denv %&gt;% mutate(nit2 = nit &gt;=125)
 denv2
 # # A tibble: 30 x 13
 #      dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo idSite nit2 
@@ -1301,7 +1303,7 @@ denv2
 
 ---
 # Aggregate
-
+&lt;br&gt;
 
 
 ```r
@@ -1326,8 +1328,10 @@ denv2
 # # … with 20 more rows
 ```
 
+
 ---
 # Aggregate
+&lt;br&gt;
 
 
 ```r
@@ -1335,10 +1339,44 @@ denv2 %&gt;% group_by(nit2) %&gt;% summarize(n())
 # # A tibble: 2 x 2
 #   nit2  `n()`
 #   &lt;lgl&gt; &lt;int&gt;
-# 1 FALSE    12
-# 2 TRUE     18
+# 1 FALSE    14
+# 2 TRUE     16
+denv2 %&gt;% group_by(nit2, alt2) %&gt;% summarize(n())
+# # A tibble: 5 x 3
+# # Groups:   nit2 [2]
+#   nit2  alt2   `n()`
+#   &lt;lgl&gt; &lt;fct&gt;  &lt;int&gt;
+# 1 FALSE high       9
+# 2 FALSE low        3
+# 3 FALSE medium     2
+# 4 TRUE  low       15
+# 5 TRUE  medium     1
 ```
 
+---
+# Aggregate
+&lt;br&gt;
+
+
+```r
+denv2 %&gt;% group_by(nit2) %&gt;% summarize(n())
+# # A tibble: 2 x 2
+#   nit2  `n()`
+#   &lt;lgl&gt; &lt;int&gt;
+# 1 FALSE    14
+# 2 TRUE     16
+denv2 %&gt;% group_by(nit2, alt2) %&gt;%
+  summarize(nb_obs = n(), mean_amm = mean(amm), sd_oxy = sd(oxy))
+# # A tibble: 5 x 5
+# # Groups:   nit2 [2]
+#   nit2  alt2   nb_obs mean_amm sd_oxy
+#   &lt;lgl&gt; &lt;fct&gt;   &lt;int&gt;    &lt;dbl&gt;  &lt;dbl&gt;
+# 1 FALSE high        9     6.56  18.6 
+# 2 FALSE low         3     0      3.79
+# 3 FALSE medium      2     0.5   15.6 
+# 4 TRUE  low        15    37.9   20.6 
+# 5 TRUE  medium      1     0     NA
+```
 
 
 ---
