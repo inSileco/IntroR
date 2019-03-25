@@ -528,20 +528,22 @@ library(tidyverse)
 
 ---
 # Basic data manipulations
+<br>
 
-0. Read files
+1. Read and write files
 
-1. Filter
+2. Filter
 
-2. Select
+3. Select
 
-3. Mutate
+4. Mutate
 
-4. Aggregate
+5. Aggregate
 
-5. Joint
+6. Joint
 
-6. figure / write files
+7. Cast and Melt
+
 
 
 
