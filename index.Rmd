@@ -75,9 +75,13 @@ if (!require(mapview)) install.packages("mapview")
 library(mapview)
 ```
 
-class: inverse, center, middle
+class: inverse, center, bottom
+background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/BlankMap-World_gray.svg/1405px-BlankMap-World_gray.svg.png)
+background-size: contain
 
-# Mapping with R
+# Mapping with R ![:faic](map)
+ <br>
+
 
 ---
 # Overview of the section
@@ -104,6 +108,8 @@ class: inverse, center, middle
 ---
 # Packages for this section
 
+<br>
+
 ```{r, eval = F}
 library(sf) # spatial vector data
 
@@ -119,6 +125,7 @@ library(mapview) # interactive map
 
 .pull-left[
 ![](images/thematic-map.png)
+> [R script for this map](https://mhbrice.github.io/Rspatial/Rspatial_script.html)
 ]
 
 
@@ -173,8 +180,8 @@ class: inverse, center, middle
 .column-left[
 #### Abiotic data
 
-- [`marmap`](https://github.com/ericpante/marmap)
 - [`raster`](https://cran.r-project.org/web/packages/raster/index.html)
+- [`marmap`](https://github.com/ericpante/marmap)
 - [`rnoaa`](https://github.com/ropensci/rnoaa)
 - [`rWBclimate`](https://github.com/ropensci/rWBclimate)
 - [`sdmpredictors`](https://cran.r-project.org/web/packages/sdmpredictors/index.html)
@@ -257,22 +264,21 @@ class: inverse, center, middle
 <img src="https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif" style="float:right;width:150px;height:150px;">
 Why use the `sf` package when `sp` is already tried and tested?
 
-- Simple features refers to a formal standard (ISO 19125-1:2004) that describes
+- .alert[Simple features refers to a formal standard] (ISO 19125-1:2004) that describes
 how objects in the real world can be represented in computers
 
-- successor of `sp`
+- .alert[successor of `sp`]
 
-- `sf` incorporates the functionality of the 3 main packages of the `sp` paradigm in a single, cohesive whole:
-
+- .alert[`sf` combines the functionality of the 3 main packages of the `sp` paradigm]:
     1. `sp` for the class system;
     2. `rgdal` for reading and writing data;
     3. `rgeos` for spatial operations undertaken by GEOS.
 
-- `sf` objects are easy to plot, manipulate, import and export
+- .alert[`sf` objects are easy to plot, manipulate, import and export]
   - Spatial objects are stored as data frames, with the feature geometries stored in list-columns
   - `tidyverse` friendly
 
-- GREAT documentation! See [sf vignettes](https://cran.rstudio.com/web/packages/sf/index.html)
+- .alert[GREAT documentation!] See [sf vignettes](https://cran.rstudio.com/web/packages/sf/index.html)
 
 ---
 # Intro to Simple Features
@@ -292,15 +298,12 @@ how objects in the real world can be represented in computers
 ---
 # Geospatial data in R
 
-We will create a thematic map of Quebec as our sampled area using data readily available in R using `getData` from the `raster` package:
-- Canadian provincial boundaries - `MULTIPOLYGON`
-- climate data - raster
+We will create a thematic map of Quebec as our sampled area using data readily available in R using `getData()` from the `raster` package:
+- Canadian provincial boundaries - vector data
+- Climate data - raster data
 
 
 ```{r getdata, eval = F}
-library(sf)
-library(raster)
-
 # Create a new directory
 dir.create("data")
 
@@ -308,6 +311,11 @@ can <- getData("GADM", country = "CAN", level = 1, path = "data")
 
 can
 ```
+
+```{r, echo=F}
+can
+```
+
 ---
 # Prep vector data 
 
@@ -316,7 +324,11 @@ Convert from `sp` to `sf` objects to facilitate manipulation
 ```{r st_sf, eval = F}
 can_sf <- st_as_sf(can)
 
-can_sf
+can_sf[1:3,]
+```
+
+```{r, echo = F}
+can_sf[1:3,]
 ```
 
 ---
@@ -327,10 +339,12 @@ Retrieve Quebec and surrounding provinces
 ```{r getQc, message = F}
 neigh <- c("Québec", "Ontario", "Nova Scotia", 
            "New Brunswick", "Newfoundland and Labrador")
-qc_neigh <- can_sf[can_sf$NAME_1 %in% neigh,]
+qc_neigh <- dplyr::filter(can_sf, NAME_1 %in% neigh)
 
-# or using dplyr::filter
-# qc_neigh <- filter(can_sf, NAME_1 %in% neigh)
+# or using base R
+# qc_neigh <- can_sf[can_sf$NAME_1 %in% neigh,]
+
+qc_neigh
 ```
 
 
@@ -344,6 +358,8 @@ Change projection for a better representation of Quebec.
 
 ```{r qc_proj, message = F}
 qc_neigh_prj <- st_transform(qc_neigh, crs = 32188)
+
+qc_neigh_prj
 ```
 
 --
@@ -417,7 +433,7 @@ plot(bioclim)
 
 Look at the annual mean temperature raster data, `bio1`:
 
-```{r bio1, message = F}
+```{r bio1}
 bioclim$bio1
 ```
 
@@ -493,7 +509,7 @@ mypal1
 mypal2 <- colorRampPalette(mypal1)
 mypal2(16)
 
-mypal <- mypal2(124)
+mypal <- mypal2(200)
 ```
 
 ---
@@ -570,7 +586,7 @@ par(mypar)
 val <- range(values(temp_mask), na.rm = T)
 val
 
-mat <- as.matrix(seq(val[1], val[2], length = 500))
+mat <- as.matrix(seq(val[1], val[2], length = 200))
                  
 image(x = mat[,1], y = 1, z = mat, col = mypal, axes = F, ann = F)
 axis(1)
@@ -675,11 +691,19 @@ mapView(sample_pts, col.regions = "red", cex = 'richness', legend = F,
 ]
 
 ---
-class: inverse, center, middle
+class: inverse, center, bottom
 
+.center[
+![:scale 30%](images/rda_schema.png)
+]
 # Introduction to ordination
 
-## Principal component analysis (PCA) & Redundancy analysis (RDA)
+## Principal component analysis (PCA) 
+
+## Redundancy analysis (RDA)
+
+
+
 
 ---
 # Ordination of multivariate data
@@ -746,6 +770,17 @@ class: inverse, center, middle
 6. For constrained ordination: variable selection + test of significance
 
 ---
+# Packages for this section
+
+```{r, eval = F}
+library(vegan) # for all multivariate methods
+
+library(ade4) # for the Doubs dataset
+
+library(scales) # for color transparency
+```
+
+---
 class: inverse, center, middle
 # Explore data
 
@@ -760,25 +795,19 @@ Verneaux (1973) dataset:
 - 30 different sites
 - 11 environmental variables
 
-]
-
-.pull.right[
-![:scale 50%](images/DoubsRiver.png)
-]
-
----
-# Doubs River Fish Dataset
-
 Load the Doubs River species data
 
 ```{r}
 data(doubs) # available in ade4
 spe <- doubs$fish
 env <- doubs$env
-# remove site with no data
-# spe <-  spe[-8]
-# env <- env[-8]
 ```
+
+]
+
+.pull.right[
+![:scale 50%](images/DoubsRiver.png)
+]
 
 ---
 # Explore environmental data
@@ -883,7 +912,7 @@ apply(env.z, 2, sd)
 ---
 # Transforming species community data
 
-**Hellinger transformation**
+.alert[Hellinger transformation]
 
 ```{r}
 spe.hel <- decostand(spe, method = "hellinger")
@@ -891,11 +920,11 @@ spe.hel <- decostand(spe, method = "hellinger")
 
 Other transformation methods:
 
-`method = "chi.square"` ![:faic](arrow-right) when using this transformation in a PCA, the result will be similar to the result of a correspondance analysis (CA)
+`method = "chi.square"` ![:faic](arrow-right) **$\chi^2$**. When using this transformation in a PCA, the result will be similar to the result of a correspondance analysis (CA)
 
-`method = "normalize"` ![:faic](arrow-right) Chord transformation
+`method = "normalize"` ![:faic](arrow-right) **Chord transformation**
 
-`method = "total"` ![:faic](arrow-right)  Species profile transformation
+`method = "total"` ![:faic](arrow-right)  **Species profile transformation**
 
 > According to [Legendre & Gallagher](http://adn.biol.umontreal.ca/~numericalecology/Reprints/Legendre_&_Gallagher.pdf): The Hellinger and chord transformations appear to be the best for general use with species data.
 
@@ -930,7 +959,7 @@ class: inverse, center, middle
 
 <br/>
 
-.red[For a matrix containing *p* descriptors, a PCA produces a *p* axes which are ordered according to the % of variation of the data they explain]
+.red[For a matrix containing *p* descriptors, a PCA produces *p* axes which are ordered according to the % of variation of the data they explain]
 
 
 ---
@@ -967,7 +996,7 @@ summary(spe.h.pca)
 
 <br/>
 
-```{r, output.lines = 10:16}
+```{r, output.lines = 2:16}
 summary(spe.h.pca)
 ```
 
@@ -1123,6 +1152,7 @@ site.scores <- scores(spe.h.pca, display = "sites", choices = 1:2)
 - Extract % of variation on the 1st and 2nd PC:
 ```{r}
 prop1 <- round(spe.h.pca$CA$eig[1]/sum(spe.h.pca$CA$eig)*100, 2)
+
 prop2 <- round(spe.h.pca$CA$eig[2]/sum(spe.h.pca$CA$eig)*100, 2)
 ```
 
@@ -1218,7 +1248,7 @@ class: inverse, center, middle
 
 - It allow us to identify and test relationships between a response matrix and explanatory matrix or matrices
 
-.center[ ![:scale 60%](images/RDA.png)]
+.center[ ![:scale 60%](images/RDA_mat.png)]
 
 - Explanatory variables can be quantitative, qualitative, or binary (0/1).
 
@@ -1235,8 +1265,10 @@ spe.rda <- rda(spe.hel ~., data = env.z) # "~." indicates all variables
 # or spe.rda <- rda(X = spe.hel, Y = env.z)
 ```
 
-- .comment[It is better to use the formula interface which is more flexible (allows for factors and interaction among variables)], for example: `rda(spe.hel ~ var1 + var2*var3 + fac, data = env.z)`.
-- You can also control for a group of variables, for example you are interested in the effect var1,2,3 while holding constant var4,5:  `rda(spe.hel ~ var1 + var2*var3 + Condition(var4 + var5), data = env.z)`
+- .comment[It is better to use the formula interface which is more flexible (allows for factors and interaction among variables)], for example: 
+  - `rda(spe.hel ~ var1 + var2*var3 + fac, data = env.z)`
+- You can also control for a group of variables, for example you are interested in the effect var1,2,3 while holding constant var4,5:  
+  - `rda(spe.hel ~ var1 + var2*var3 + Condition(var4 + var5), data = env.z)`
 
 ---
 # RDA output in R
@@ -1248,7 +1280,7 @@ summary(spe.rda)
 - **`Constrained Proportion`** ![:faic](arrow-right) variance of the response matrix explained by the environmental matrix
  - .alert[(0.3557/0.5023 = 70.81%)]
  - Equivalent of unadjusted R2
-- **`Unconstained Proportion`** ![:faic](arrow-right) unexplained variance in the response matrix
+- **`Unconstained Proportion`** ![:faic](arrow-right) unexplained variance in the response matrix (residuals)
   - .alert[(0.1467/0.5023 = 29.21%)]  
 
 
@@ -1314,12 +1346,15 @@ You can also test the significance of each axis!
 anova.cca(rda.sel, step = 1000, by = "axis")
 ```
 
-You can also test the significance of each variable!
+... and of each variable!
 ```{r, eval = F}
 anova.cca(rda.sel, step = 1000, by = "term")
 ```
 
-> The interpretation of the RDA must be preceded by a test of statistical significance. If your test is not significant, results should not be interpreted.
+.center[
+.alert[![:faic](exclamation-triangle) If your global test is not significant, RDA results should not be interpreted!]
+]
+
 
 ---
 # RDA - Visualization
