@@ -1,6 +1,5 @@
 ---
 title: "Introduction to R"
-# subtitle: ""
 author: "Marie-Hélène Brice & Kevin Cazelles"
 date: "2019/26/03"
 output:
@@ -51,7 +50,7 @@ knit_hooks$set(output = function(x, options) {
   x <- paste(c(x, ""), collapse = "\n")
   hook_output(x, options)
 })
-``` 
+```
 
 ```{r, echo = F}
 mypar = list(mar = c(3,3,1,0.5), mgp = c(1.6, 0.3, 0), tck = -.02, cex = 1.5)
@@ -66,8 +65,616 @@ if (!require(ade4)) install.packages("ade4")
 library(ade4)
 if (!require(scales)) install.packages("scales")
 library(scales)
+if (!require(sf)) install.packages("sf")
+library(sf)
+if (!require(raster)) install.packages("raster")
+library(raster)
+if (!require(RColorBrewer)) install.packages("RColorBrewer")
+library(RColorBrewer)
+if (!require(mapview)) install.packages("mapview")
+library(mapview)
 ```
 
+class: inverse, center, middle
+
+# Mapping with R
+
+---
+# Overview of the section
+
+
+<br>
+
+<img src="images/todo.png" style="float:right;width:170px;margin: 0px 0px">
+
+1. Why mapping in R?
+
+2. Spatial data & Coordinate reference system
+
+3. Vector data with **`sf`**
+
+4. Raster data with **`raster`**
+
+5. Thematic maps
+
+6. Interactive maps
+
+7. Questions, discussion, and use of your data
+
+---
+# Packages for this section
+
+```{r, eval = F}
+library(sf) # spatial vector data
+
+library(raster) # spatial raster data
+
+library(RColorBrewer) # color
+
+library(mapview) # interactive map
+```
+
+---
+# Why mapping in Ecology?
+
+.pull-left[
+![](images/thematic-map.png)
+]
+
+
+.pull-left[
+1. show where your plots are
+
+2. show how variables are distributed spatially
+
+3. show results of spatial analyses
+]
+
+---
+# Why using R for mapping?
+
+1. Open-source, free
+
+2. Workflow and reproducibility
+
+3. Quite efficient
+    - well-defined spatial classes
+    - can read/write/convert many formats
+
+4. Can also be used for spatial data manipulation and analysis as a GIS [![:faic](external-link)](https://mhbrice.github.io/Rspatial/Rspatial_script.html)
+
+---
+class: inverse, center, middle
+# Spatial data
+
+---
+# Vector data
+
+<br><br>
+
+.center[
+![](images/vector-data.png)
+]
+
+
+
+---
+# Raster data
+
+<br><br>
+
+.center[
+![](images/raster-data.png)
+]
+
+---
+# Geospatial data in R
+
+.column-left[
+#### Abiotic data
+
+- [`marmap`](https://github.com/ericpante/marmap)
+- [`raster`](https://cran.r-project.org/web/packages/raster/index.html)
+- [`rnoaa`](https://github.com/ropensci/rnoaa)
+- [`rWBclimate`](https://github.com/ropensci/rWBclimate)
+- [`sdmpredictors`](https://cran.r-project.org/web/packages/sdmpredictors/index.html)
+]
+
+.column-center[
+#### Biotic data
+
+- [`rgbif`](https://github.com/ropensci/rgbif)
+- [`robis`](https://github.com/iobis/robis)
+- [`spocc`](https://github.com/ropensci/spocc)
+]
+
+.column-right[
+#### Base maps
+
+- [`ggmap`](https://github.com/dkahle/ggmap)
+- [`mregions`](https://github.com/ropenscilabs/mregions)
+- [`osmdata`](https://github.com/ropensci/osmdata)
+- [`raster`](https://cran.r-project.org/web/packages/raster/index.html)
+- [`rnaturalearth`](https://github.com/ropenscilabs/rnaturalearth)
+
+]
+
+
+---
+class: inverse, center, middle
+# Coordinate reference system
+
+.center[
+![:scale 50%](http://gistbok.ucgis.org/sites/default/files/figure2-projections.png)
+]
+
+
+---
+# Geographic vs projected CRS
+
+```{r canada, echo=F, warning=F, fig.height=4.8, fig.width=9}
+can <- raster::getData("GADM", country = "CAN", level = 1, path = "data/")
+can_sf <- st_as_sf(can)
+
+qc <- can_sf[can_sf$NAME_1 == "Québec",]
+qc_prj <- st_transform(qc, 32188)
+qc_simple_prj <- st_simplify(qc_prj, dTolerance = 500)
+qc_simple <- st_transform(qc_simple_prj, 4326)
+
+par(mfrow=c(1,2), mar = c(2,3,2,1))
+plot(st_geometry(qc_simple), main = "Geographic CRS - Lat/Lon", graticule=T, axes=T, cex.axis=0.8, las=1)
+plot(st_geometry(qc_simple_prj), main = "Projected CRS - UTM", graticule=st_crs(qc_simple_prj), axes=T, cex.axis=0.8, las=1)
+```
+
+> [What are geographic coordinate systems?](http://desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/about-geographic-coordinate-systems.htm)
+> <br>
+> [What are projected coordinate systems?](http://desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/about-projected-coordinate-systems.htm)
+
+---
+# Define CRS with EPSG or proj4string
+
+Many, many ways to represent the 3-D shape of the earth and to project it in a 2-D plane
+
+- each CRS can be defined either by an `EPSG` or a `proj4string`
+
+> The EPSG code is a numeric representation of a CRS, while the proj4string reprensents the full set of parameters spelled out in a string:
+> <br>
+> EPSG `4326` <=> proj4 `+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs`
+> <br>
+> EPSG `32188` <=> proj4 `+proj=tmerc +lat_0=0 +lon_0=-73.5 +k=0.9999 +x_0=304800 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs`
+
+- All geographic files are created using a specific CRS - but it's not always defined!
+
+- To find CRS in any format: [Spatial Reference](http://spatialreference.org/)
+
+---
+class: inverse, center, middle
+# Vector data with `sf`
+
+---
+# Intro to Simple Features
+
+<img src="https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif" style="float:right;width:150px;height:150px;">
+Why use the `sf` package when `sp` is already tried and tested?
+
+- Simple features refers to a formal standard (ISO 19125-1:2004) that describes
+how objects in the real world can be represented in computers
+
+- successor of `sp`
+
+- `sf` incorporates the functionality of the 3 main packages of the `sp` paradigm in a single, cohesive whole:
+
+    1. `sp` for the class system;
+    2. `rgdal` for reading and writing data;
+    3. `rgeos` for spatial operations undertaken by GEOS.
+
+- `sf` objects are easy to plot, manipulate, import and export
+  - Spatial objects are stored as data frames, with the feature geometries stored in list-columns
+  - `tidyverse` friendly
+
+- GREAT documentation! See [sf vignettes](https://cran.rstudio.com/web/packages/sf/index.html)
+
+---
+# Intro to Simple Features
+
+.center[
+![:scale 60%](images/sf-classes.png)
+]
+
+---
+# Intro to Simple Features
+
+![](images/sf_object.png)
+
+> [sf vignette #1](https://cran.r-project.org/web/packages/sf/vignettes/sf1.html)
+
+
+---
+# Geospatial data in R
+
+We will create a thematic map of Quebec as our sampled area using data readily available in R using `getData` from the `raster` package:
+- Canadian provincial boundaries - `MULTIPOLYGON`
+- climate data - raster
+
+
+```{r getdata, eval = F}
+library(sf)
+library(raster)
+
+# Create a new directory
+dir.create("data")
+
+can <- getData("GADM", country = "CAN", level = 1, path = "data")
+
+can
+```
+---
+# Prep vector data 
+
+Convert from `sp` to `sf` objects to facilitate manipulation
+
+```{r st_sf, eval = F}
+can_sf <- st_as_sf(can)
+
+can_sf
+```
+
+---
+# Prep vector data 
+
+Retrieve Quebec and surrounding provinces
+
+```{r getQc, message = F}
+neigh <- c("Québec", "Ontario", "Nova Scotia", 
+           "New Brunswick", "Newfoundland and Labrador")
+qc_neigh <- can_sf[can_sf$NAME_1 %in% neigh,]
+
+# or using dplyr::filter
+# qc_neigh <- filter(can_sf, NAME_1 %in% neigh)
+```
+
+
+
+---
+# Prep vector data 
+
+Change projection for a better representation of Quebec. 
+
+> Here, I chose EPSG 32188 which corresponds to NAD83 - MTM zone 9 
+
+```{r qc_proj, message = F}
+qc_neigh_prj <- st_transform(qc_neigh, crs = 32188)
+```
+
+--
+It would take a while to plot because there is a lot of unnecessary details, so
+we can simplify the shape of the polygons using `st_simplify()`.
+
+```{r simplify}
+qc_neigh_simple <- st_simplify(qc_neigh_prj, 
+                               dTolerance = 1000) # simplify geometry at a 1km scale)
+```
+
+---
+# Simple plot
+
+Instead of creating a single map, the default plot of `sf` object creates multiple maps, one for each attribute. This is often useful for exploring the spatial distribution of different variables.
+
+```{r base_plot, message = F, fig.height=6, fig.width=6, echo = -1}
+par(mypar)
+plot(qc_neigh_simple)
+```
+
+---
+# Simple plot
+
+```{r map_1, echo = -1, fig.width=9, fig.height=7}
+par(mypar)
+# retrieve Québec only
+qc_simple <- dplyr::filter(qc_neigh_simple, NAME_1=="Québec")
+
+plot(st_geometry(qc_neigh_simple), col = "grey65")
+plot(st_geometry(qc_simple), col = "blue3", add = T)
+```
+
+---
+# Create a layer of `MULTIPOINTS`
+
+Let's say we sampled vegetation in 100 plots across Québec; we now want to plot them
+with points proportional to their species richness. We will now create a data
+frame containing coordinates and random values from 5 to 50.
+
+```{r points, message = F}
+# Sample random points from our study area
+sample_pts <- st_sample(x = qc_simple, size = 100)
+
+# Create an attribute of fake species richness (with 5 to 50 species per plot)
+richness <- sample(x = 5:50, size = length(sample_pts), replace = TRUE)
+
+sample_pts <- st_sf(sample_pts, richness = richness)
+
+sample_pts
+```
+
+---
+# Get bioclimatic rasters
+
+If we were interested in the latitudinal temperature gradient, we could add a
+raster of mean annual temperature (`bio1`) as a background to our map.
+
+We will use a low resolution so it does not take too long to plot.
+
+```{r temp, message = F, fig.width=9}
+bioclim <- getData("worldclim", var = "bio", res = 10, path = "data")
+
+# There are 19 layers in this raster.
+plot(bioclim)
+```
+
+
+---
+# Prep raster data
+
+Look at the annual mean temperature raster data, `bio1`:
+
+```{r bio1, message = F}
+bioclim$bio1
+```
+
+--
+
+We need to divide by 10 (because Worldclim temperature data are in °C * 10)
+
+```{r bio1_prep, message = F}
+temp <- bioclim$bio1/10
+
+temp
+```
+
+---
+# Prep raster data - projection
+
+Change projection to match with the polygons using `projectRaster()`.
+
+- `projectRaster()` requires the PROJ.4 format of the CRS: 
+
+```{r}
+st_crs(qc_simple)$proj4string
+```
+
+
+```{r raster_prj, message = F}
+temp_prj <- projectRaster(temp, crs = st_crs(qc_simple)$proj4string)
+```
+
+---
+# Prep raster data - crop and mask
+
+1. `crop()` decreases the extent of a raster using the extent of another spatial object. `crop()` expects a `sp` object, so we need to transform the polygon first.
+2. `mask()` keeps the raster values only in the area of interest and set the rest to NA.
+
+```{r crop}
+temp_crop <- crop(temp_prj, as(qc_simple, "Spatial"))
+temp_mask <- mask(temp_crop, qc_simple)
+```
+
+```{r, echo = -1, fig.width=8, fig.height=4.5}
+par(mypar)
+par(mfrow = c(1,2))
+plot(temp_crop, main = "crop")
+plot(temp_mask, main = "mask")
+```
+
+---
+class: inverse, center, middle
+
+# Thematic map
+
+
+---
+# Creating a simple layout
+
+```{r layout}
+my.layout <- layout(matrix(1:2, 2), heights = c(1,.2))
+layout.show(my.layout)
+```
+
+---
+# Define color palette
+
+Palette of color for the temperature raster using `brewer.pal()` and `colorRampPalette()`
+
+```{r color, echo = -1, fig.height=2.5}
+par(mar=c(4,1,.5,1))
+display.brewer.pal(11, "RdYlBu")
+
+mypal1 <- rev(brewer.pal(11, "RdYlBu"))
+mypal1
+mypal2 <- colorRampPalette(mypal1)
+mypal2(16)
+
+mypal <- mypal2(124)
+```
+
+---
+# Step by step thematic map
+
+Plot neighbor provinces as background
+
+```{r, fig.width = 5.5, fig.height = 6}
+layout(matrix(1:2, 2), heights = c(1,.2))
+par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0,0))
+
+plot(st_geometry(qc_neigh_simple),
+     col = '#b5cfbd', border = 'grey50',
+     axes = T, graticule = T) # add graticules
+```
+
+
+
+---
+# Step by step thematic map
+
+Add the temperature raster
+```{r, echo = 4, fig.width = 5.5, fig.height = 6}
+layout(matrix(1:2, 2), heights = c(1,.2))
+par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0,0))
+plot(st_geometry(qc_neigh_simple),
+     col = '#b5cfbd', border = 'grey50',
+     axes = T, graticule = T) # add graticules
+image(temp_mask, add = T, col = mypal)
+```
+
+---
+# Step by step thematic map
+
+Add the Quebec polygon's boundary on top
+```{r, echo = 5, fig.width = 5.5, fig.height = 6}
+layout(matrix(1:2, 2), heights = c(1,.2))
+par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0,0))
+plot(st_geometry(qc_neigh_simple),
+     col = '#b5cfbd', border = 'grey50',
+     axes = T, graticule = T) # add graticules
+image(temp_mask, add = T, col = mypal)
+plot(st_geometry(qc_simple), add = T, 
+     border = 'grey15', lwd = 1.4)
+```
+
+
+---
+# Step by step thematic map
+
+Add sample points with size proportional to their species richness
+```{r, echo = 6, fig.width = 5.5, fig.height = 6}
+layout(matrix(1:2, 2), heights = c(1,.2))
+par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0,0))
+plot(st_geometry(qc_neigh_simple),
+     col = '#b5cfbd', border = 'grey50',
+     axes = T, graticule = T) # add graticules
+image(temp_mask, add = T, col = mypal)
+plot(st_geometry(qc_simple), add = T, 
+     border = 'grey15', lwd = 1.4)
+plot(st_geometry(sample_pts), add = T, pch = 21,
+     bg = "#63636388", col = "grey15", lwd = 1.4,
+     cex = sample_pts$richness/25) # Size proportional to richness
+```
+
+
+---
+# Step by step thematic map
+
+Create a color legend manually
+
+```{r, echo = -1, fig.height=5}
+par(mypar)
+val <- range(values(temp_mask), na.rm = T)
+val
+
+mat <- as.matrix(seq(val[1], val[2], length = 500))
+                 
+image(x = mat[,1], y = 1, z = mat, col = mypal, axes = F, ann = F)
+axis(1)
+mtext(side = 1, line = 1.8, text = 'Mean annual temperature (°C)')
+```
+
+---
+# Step by step thematic map
+
+Add the color legend under the map
+```{r, echo = 7:9, fig.width = 5.5, fig.height = 6}
+layout(matrix(1:2, 2), heights = c(1,.2))
+par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0.1,0.1))
+plot(st_geometry(qc_neigh_simple),
+     col = '#b5cfbd', border = 'grey50',
+     axes = T, graticule = T) # add graticules
+image(temp_mask, add = T, col = mypal)
+plot(st_geometry(qc_simple), add = T, 
+     border = 'grey15', lwd = 1.4)
+plot(st_geometry(sample_pts), add = T, pch = 21,
+     bg = "#63636388", col = "grey15", lwd = 1.4,
+     cex = sample_pts$richness/25) # Size proportional to richness
+par(mar = c(3,4,1,4))
+image(x = mat[,1], y = 1, z = mat, col = mypal, axes = F, ann = F)
+axis(1, cex.axis = .8)
+mtext(side = 1, line = 1.8, text = 'Mean annual temperature (°C)')
+```
+
+---
+class: inverse, center, middle
+# Interactive map
+
+---
+# Interactive map
+
+
+```{r mapview1, fig.width=11, fig.height=6.5}
+mapView(qc_simple)
+```
+
+
+---
+# Interactive map
+
+```{r mapview_pts, fig.width=11, fig.height=6.5}
+mapView(sample_pts, layer.name = "Species richness")
+```
+
+---
+# Interactive map
+
+```{r mapview3, fig.width=11, fig.height=6.5}
+mapView(sample_pts, col.regions = "red", cex = 'richness', legend = F, 
+        map.types = "Esri.WorldImagery")
+```
+
+---
+# Great online resources
+
+.pull-left[
+#### Good tutorials for spatial data in R
+
+- [Raster analysis in R](https://mgimond.github.io/megug2017/)
+- [Geocomputation with R](https://geocompr.robinlovelace.net/intro.html)
+- [Spatial data in R](https://github.com/Pakillo/R-GIS-tutorial/blob/master/R-GIS_tutorial.md)
+- [Document par Nicolas Casajus (fr)](https://qcbs.ca/wiki/_media/gisonr.pdf)
+- [r-spatial](http://r-spatial.org/)
+- [Tutorial on datacamp](https://www.datacamp.com/courses/spatial-analysis-in-r-with-sf-and-raster)
+- [R in space - Insileco](https://insileco.github.io/2018/04/14/r-in-space---a-series/)
+- [Geospatial analyses & maps with R](https://mhbrice.github.io/Rspatial/Rspatial_script.html)
+
+#### Get free data
+
+- [free data at country level](http://www.diva-gis.org/gdata)
+- [Quebec free data](http://mffp.gouv.qc.ca/le-ministere/acces-aux-donnees-gratuites/)
+- [find more spatial data](https://freegisdata.rtwilson.com/)
+- [create shapefile on line](http://geojson.io/)
+- EPSG: [link1](http://spatialreference.org/); [link2](http://epsg.io/)
+
+]
+
+.pull-right[
+
+#### Maps in R
+
+- [Introduction to visualising spatial data in R](https://cran.r-project.org/doc/contrib/intro-spatial-rl.pdf)
+- [Geocomputation with R](https://geocompr.robinlovelace.net/adv-map.html)
+- [choropleth](https://cengel.github.io/rspatial/4_Mapping.nb.html)
+- [leaflet](https://rstudio.github.io/leaflet/)
+- [Mapview](https://r-spatial.github.io/mapview/index.html)
+- [tmap](https://cran.r-project.org/web/packages/tmap/vignettes/tmap-nutshell.html)
+- [plotly](https://plot.ly/python/maps/)
+- [Animated maps](https://insileco.github.io/2017/07/05/animations-in-r-time-series-of-erythemal-irradiance-in-the-st.-lawrence/)
+
+#### `sf` manipulations
+
+- [sf vignette #4](https://cran.r-project.org/web/packages/sf/vignettes/sf4.html)
+- [Geocomputation with R](https://geocompr.robinlovelace.net/attr.html)
+- [Attribute manipulations](https://insileco.github.io/2018/04/09/r-in-space---attribute-manipulations/)
+- [Tidy spatial data in R](http://strimas.com/r/tidy-sf/)
+
+]
+
+---
 class: inverse, center, middle
 
 # Introduction to ordination
@@ -106,7 +713,7 @@ class: inverse, center, middle
 
 **Constrained/canonical ordination**
 
-- Explicitly puts into relationship two matrices: one dependent matrix and one explanatory matrix. 
+- Explicitly puts into relationship two matrices: one dependent matrix and one explanatory matrix.
 - This approach combines the techniques of ordination and multiple regression.
 - Explanatory method: statistical test
 
@@ -128,7 +735,7 @@ class: inverse, center, middle
 ---
 # Steps to ordination
 
-1. Explore your data: 
+1. Explore your data:
   - multivariate data, species abundance or environmental variables, 1 or 2 matrices
 2. Prep your data
 3. Perform an ordination analysis:
@@ -185,7 +792,7 @@ head(env) # first 6 rows
 
 ```{r, fig.width=11, fig.height=10, echo = -1}
 par(mar=c(0,0,0,0))
-pairs(env) 
+pairs(env)
 ```
 
 ---
@@ -215,7 +822,7 @@ barplot(ab, las = 1, col = grey(5:0/5),
 **How do we interpret the double absence of species in a matrix of species abundances (or presence-absence)?**
 
 <img style="float: right; width:50%;margin: 1%" src="images/double-zero.png">
-- the *presence* of a species in 2 sites indicates ecological resemblance between these 2 sites 
+- the *presence* of a species in 2 sites indicates ecological resemblance between these 2 sites
   - the sites provide a set of minimal conditions allowing the species to survive.
 
 - the *absence* of a species from 2 sites cannot be interpreted as a resemblance because it may be due to a variety of causes: competition, several dimensions of the niche (pH, light, temperature...), random dispersal process.
@@ -231,7 +838,7 @@ class: inverse, center, middle
 ---
 # Distance measures
 
-.comment[Ordination analysis are based on the comparison of all possible pairs of objects. 
+.comment[Ordination analysis are based on the comparison of all possible pairs of objects.
 
 PCA and RDA are based on the Euclidean distance.]
 
@@ -257,7 +864,7 @@ env.z <- decostand(env, method = "standardize")
 # env.z <- scale(env)
 ```
 
-Standardization centers (mean $\mu$ = 0) and scales (standard deviation $\sigma$ = 1) the variables 
+Standardization centers (mean $\mu$ = 0) and scales (standard deviation $\sigma$ = 1) the variables
 
 ```{r}
 apply(env.z, 2, mean)
@@ -294,7 +901,7 @@ Other transformation methods:
 
 ---
 class: inverse, center, middle
-# Unconstrained ordination 
+# Unconstrained ordination
 ## PCA
 
 
@@ -302,10 +909,10 @@ class: inverse, center, middle
 ---
 # Principal Component Analysis (PCA)
 
-- Starting from a multidimensional sites x descriptors matrix 
+- Starting from a multidimensional sites x descriptors matrix
   - where the descriptors can be species abundance (or presence-absence) or environmental variables
 
-- A PCA will preserve the maximum amount of variation in the data in a reduced number of dimensions (usually we use the first 2 dimensions) 
+- A PCA will preserve the maximum amount of variation in the data in a reduced number of dimensions (usually we use the first 2 dimensions)
 
 - The resulting, synthetic variables are orthogonal (i.e. perpendicular and therefore uncorrelated)
 
@@ -395,7 +1002,7 @@ summary(spe.h.pca)
 ```
 
 
-- `Species scores` ![:faic](arrow-right) coordinates of all descriptors in the multidimensional space of the PCA. 
+- `Species scores` ![:faic](arrow-right) coordinates of all descriptors in the multidimensional space of the PCA.
 
 <br>
 
@@ -408,7 +1015,7 @@ summary(spe.h.pca)
 summary(spe.h.pca)
 ```
 
-- `Site scores` ![:faic](arrow-right) coordinates of all sites in the multidimensional space of the PCA. 
+- `Site scores` ![:faic](arrow-right) coordinates of all sites in the multidimensional space of the PCA.
 
 <br>
 
@@ -475,9 +1082,9 @@ biplot(spe.h.pca, scaling = 1, main = "Scaling 1 = distance biplot")
 biplot(spe.h.pca, scaling = 2, main = "Scaling 2 = correlation biplot")
 ```
 
-- In a PCA, we interpret the .purple[**correlation among species**] by looking at the angles among their arrows, while we interpret the .purple[**distance among sites**]. 
+- In a PCA, we interpret the .purple[**correlation among species**] by looking at the angles among their arrows, while we interpret the .purple[**distance among sites**].
 
-- However, we cannot optimally display sites and species together in a PCA biplot. 
+- However, we cannot optimally display sites and species together in a PCA biplot.
 
 ---
 # PCA - Scaling
@@ -489,15 +1096,15 @@ biplot(spe.h.pca, scaling = 2, main = "Scaling 2 = correlation biplot")
 ```
 
 .pull-left[
-**Scaling 1**: 
-- distances among objects are approximations of Euclidean distances; 
+**Scaling 1**:
+- distances among objects are approximations of Euclidean distances;
 - the angles among descriptors vector are meaningless.
 
 .alert[Best for interpreting relationships among objects (sites)!]
 ]
 
-.pull-right[**Scaling 2** (Default): 
-- angles between descriptors vectors reflect their correlations; 
+.pull-right[**Scaling 2** (Default):
+- angles between descriptors vectors reflect their correlations;
 - distances among objects are not approximations of Euclidean distances.
 
 .alert[Best for interpreting relationships among descriptors (species)!]
@@ -513,7 +1120,7 @@ spe.scores <- scores(spe.h.pca, display = "species", choices = 1:2)
 site.scores <- scores(spe.h.pca, display = "sites", choices = 1:2)
 ```
 
-- Extract % of variation on the 1st and 2nd PC: 
+- Extract % of variation on the 1st and 2nd PC:
 ```{r}
 prop1 <- round(spe.h.pca$CA$eig[1]/sum(spe.h.pca$CA$eig)*100, 2)
 prop2 <- round(spe.h.pca$CA$eig[2]/sum(spe.h.pca$CA$eig)*100, 2)
@@ -554,8 +1161,8 @@ plot(spe.h.pca, type = "none",
      ylab = paste0("PC2 (", prop2, "%)"))
 points(site.scores,
        pch = 21, bg = "steelblue", cex  = 1.2)
-arrows(x0 = 0, y0 = 0, 
-       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = spe.scores[,1], y1 = spe.scores[,2],
        length = 0.1) # size of arrow head
 ```
 
@@ -570,8 +1177,8 @@ plot(spe.h.pca, type = "none",
      ylab = paste0("PC2 (", prop2, "%)"))
 points(site.scores,
        pch = 21, bg = "steelblue", cex  = 1.2)
-arrows(x0 = 0, y0 = 0, 
-       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = spe.scores[,1], y1 = spe.scores[,2],
        length = 0.1)
 text(spe.scores[,1], spe.scores[,2],
      labels = rownames(spe.scores),
@@ -589,8 +1196,8 @@ plot(spe.h.pca, type = "none",
      ylab = paste0("PC2 (", prop2, "%)"))
 points(site.scores,
        pch = 21, bg = "steelblue", cex  = 1.2)
-arrows(x0 = 0, y0 = 0, 
-       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = spe.scores[,1], y1 = spe.scores[,2],
        length = 0.1)
 text(spe.scores[,1], spe.scores[,2],
      labels = rownames(spe.scores),
@@ -608,11 +1215,11 @@ class: inverse, center, middle
 # RDA
 
 - RDA = combination of multiple regressions and a PCA.
-  
+
 - It allow us to identify and test relationships between a response matrix and explanatory matrix or matrices
 
 .center[ ![:scale 60%](images/RDA.png)]
-  
+
 - Explanatory variables can be quantitative, qualitative, or binary (0/1).
 
 <br>
@@ -643,8 +1250,8 @@ summary(spe.rda)
  - Equivalent of unadjusted R2
 - **`Unconstained Proportion`** ![:faic](arrow-right) unexplained variance in the response matrix
   - .alert[(0.1467/0.5023 = 29.21%)]  
-  
-  
+
+
 
 
 ---
@@ -661,7 +1268,7 @@ summary(spe.rda)
 # Selecting variables
 
 Using .alert[stepwise selection], we can select the explanatory variables that are significant.  
-  
+
 
 ```{r}
 # Forward selection of variables:
@@ -742,8 +1349,8 @@ ordiplot(rda.sel, scaling = 2, type = "text")
 ```{r, echo=F}
 par(mypar)
 ordiplot(rda.sel, scaling = 1, type = "text")
-arrows(0, 0, scores(rda.sel, scaling = 1)$species[,1], 
-       scores(rda.sel, scaling = 1)$species[,2], 
+arrows(0, 0, scores(rda.sel, scaling = 1)$species[,1],
+       scores(rda.sel, scaling = 1)$species[,2],
        length = .1, col = "red")
 ```
 ]
@@ -762,8 +1369,8 @@ arrows(0, 0, scores(rda.sel, scaling = 1)$species[,1],
 ```{r, echo = F}
 par(mypar)
 ordiplot(rda.sel, scaling = 2, type = "text")
-arrows(0, 0, scores(rda.sel)$species[,1], 
-       scores(rda.sel)$species[,2], 
+arrows(0, 0, scores(rda.sel)$species[,1],
+       scores(rda.sel)$species[,2],
        length = .1, col = "red")
 ```
 ]
@@ -782,13 +1389,13 @@ Both `plot()` and `ordiplot()` make quick and simple ordination plots, but you c
 
 - Extract species and site scores along the 1st and 2nd RDA:
 ```{r}
-spe.scores <- scores(rda.sel, display = "species", choices = 1:2) 
+spe.scores <- scores(rda.sel, display = "species", choices = 1:2)
 site.scores <- scores(rda.sel, display = "sites", choices = 1:2)
 env.scores <- scores(rda.sel, display = "bp", choices= 1:2)
 # default: scaling = 2
 ```
 
-- Extract % of variation on the 1st and 2nd RDA: 
+- Extract % of variation on the 1st and 2nd RDA:
 ```{r}
 prop1 <- round(rda.sel$CCA$eig[1]/sum(rda.sel$CCA$eig)*100, 2)
 prop2 <- round(rda.sel$CCA$eig[2]/sum(rda.sel$CCA$eig)*100, 2)
@@ -807,17 +1414,17 @@ points(site.scores,
        pch = 19, col = alpha("grey", 0.5), cex  = 1.1)
 
 # Arrows and text for species
-arrows(x0 = 0, y0 = 0, 
-       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = spe.scores[,1], y1 = spe.scores[,2],
        length = 0.1, col = "grey15")
-text(spe.scores[,1], 
+text(spe.scores[,1],
      spe.scores[,2]+sign(spe.scores[,2])*.02, # shift labels
      labels = rownames(spe.scores),
      col = "grey15", cex = 0.9)
 
 # Arrows and text for environmental variables
-arrows(x0 = 0, y0 = 0, 
-       x1 = env.scores[,1], y1 = env.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = env.scores[,1], y1 = env.scores[,2],
        length = 0.1, lwd = 1.5, col = "#CC3311")
 text(env.scores[,1]+sign(env.scores[,1])*.05, # shift labels
      env.scores[,2],
@@ -839,18 +1446,18 @@ plot(rda.sel, type = "none",
 points(site.scores,
        pch = 19, col = alpha("grey", 0.5), cex  = 1.1)
 # Arrows and text for species
-arrows(x0 = 0, y0 = 0, 
-       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = spe.scores[,1], y1 = spe.scores[,2],
        length = 0.1, col = "grey15")
-text(spe.scores[,1], 
+text(spe.scores[,1],
      spe.scores[,2]+sign(spe.scores[,2])*.02,
      labels = rownames(spe.scores),
      col = "grey15", cex = 0.9)
 # Arrows and text for environmental variables
-arrows(x0 = 0, y0 = 0, 
-       x1 = env.scores[,1], y1 = env.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = env.scores[,1], y1 = env.scores[,2],
        length = 0.1, lwd = 1.5, col = "#CC3311")
-text(env.scores[,1]+sign(env.scores[,1])*.05, 
+text(env.scores[,1]+sign(env.scores[,1])*.05,
      env.scores[,2],
      labels = rownames(env.scores),
      col = "#CC3311", cex = 1, font = 2)
@@ -871,17 +1478,17 @@ points(site.scores,
        pch = 19, col = alpha("grey", 0.5), cex  = 1.1)
 
 # Arrows and text for species
-arrows(x0 = 0, y0 = 0, 
-       x1 = spe.scores[,1], y1 = spe.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = spe.scores[,1], y1 = spe.scores[,2],
        length = 0.1, col = "grey15")
-text(spe.scores[,1], 
+text(spe.scores[,1],
      spe.scores[,2]+sign(spe.scores[,2])*.02, # shift labels
      labels = rownames(spe.scores),
      col = "grey15", cex = 0.9)
 
 # Arrows and text for environmental variables
-arrows(x0 = 0, y0 = 0, 
-       x1 = env.scores[,1], y1 = env.scores[,2], 
+arrows(x0 = 0, y0 = 0,
+       x1 = env.scores[,1], y1 = env.scores[,2],
        length = 0.1, lwd = 1.5, col = "#CC3311")
 text(env.scores[,1]+sign(env.scores[,1])*.05, # shift labels
      env.scores[,2],
