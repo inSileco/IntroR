@@ -20,13 +20,14 @@ output:
 library(knitr)
 
 opts_chunk$set(
-  eval = T,
-  cache = T,
+  eval = TRUE,
+  cache = FALSE,
   comment = "#",
   collapse = TRUE,
   warning = FALSE,
   message = FALSE,
   fig.width=5, fig.height=5,
+  dpi = 300,
   fig.align = 'center'
 )
 
@@ -70,6 +71,10 @@ if (!require(scales)) install.packages("scales")
 library(scales)
 ```
 
+```{r echo = FALSE}
+knitr::read_chunk("scripts/code_R.R")
+```
+
 ---
 # Aims
 
@@ -83,8 +88,8 @@ library(scales)
 # Outline
 
 ### &nbsp; <i class="fa fa-commenting-o" aria-hidden="true"></i> R? ~10min
-### &nbsp; <i class="fa fa-wrench" aria-hidden="true"></i> Data manipulations ~1h
-### &nbsp; <i class="fa fa-bar-chart" aria-hidden="true"></i> Data visualization (part1) ~45min
+### &nbsp; <i class="fa fa-wrench" aria-hidden="true"></i> Data manipulations ~1h15min
+### &nbsp; <i class="fa fa-bar-chart" aria-hidden="true"></i> Data visualization (part1) ~30min
 ### &nbsp; <i class="fa fa-cutlery" aria-hidden="true"></i> Lunch break 12pm
 ### &nbsp; <i class="fa fa-bar-chart" aria-hidden="true"></i> Data visualization (part2) ~30min
 ### &nbsp; <i class="fa fa-map" aria-hidden="true"></i> mapping ~ 1h30
@@ -541,7 +546,8 @@ library(tidyverse)
 
 
 ---
-# Basic data manipulations
+# Data manipulations
+<br>
 
 ### &nbsp; 1. Import data / read file(s) <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> get R object(s)
 ### &nbsp; 2. Select / Filter <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> find the data of interest
@@ -808,6 +814,7 @@ dim(dmerg)
 
 ---
 # Join
+<br>
 
 ### Different way of joining data frame [(see documentation)](https://dplyr.tidyverse.org/reference/join.html)
 
@@ -908,31 +915,731 @@ class: inverse, center, middle
 
 
 ---
-# graphics, grid and more
+# Data visualization
+<br>
+
+## [Material +](https://insileco.github.io/Visualisation-SentinelleNord/#1)
+
+## [bookdown](https://bookdown.org/)
+
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+]
+
+.pull-right[
+
+```{r echo=FALSE}
+<<load_data>>
+<<component_1>>
+```
+]
+
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+- plot window
+]
+
+.pull-right[
+
+```{r echo=FALSE}
+<<load_data>>
+<<component_2>>
+```
+]
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+]
+
+
+.pull-right[
+```{r echo=FALSE}
+<<load_data>>
+<<component_3>>
+```
+]
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+- data
+]
+
+
+.pull-right[
+```{r echo=FALSE}
+<<load_data>>
+<<component_4>>
+```
+]
+
+---
+# Components
+<br>
+
+.pull-left[
+
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+- data
+- axes
+]
+
+.pull-right[
+
+```{r echo=FALSE}
+<<load_data>>
+<<component_5>>
+```
+]
+
+---
+# Components
+<br>
+
+.pull-left[
+
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+- data
+- axes
+- title
+]
+
+
+.pull-right[
+```{r echo=FALSE}
+<<load_data>>
+<<component_6>>
+```
+]
+
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+- data
+- axes
+- titles
+- legend
+]
+
+
+.pull-right[
+```{r echo=FALSE}
+<<load_data>>
+<<component_7>>
+```
+]
+
 
 
 
 ---
-# ggplot2
+# graphics vs grid
+<br>
+
+.center[![:scale 80%](images/Murrell2015.jpg)]
+
+Murrell, P. (2015) [The gridGraphics Package]("https://journal.r-project.org/archive/2015-1/murrell.pdf"). The R Jounal.
 
 
 ---
-# What's the big idea
+# Workflows
 
-1. grammar of graohics
 
-2. yourplot <- gg_XX1 + gg_XX2 + gg_XX3
+### Base plot
 
-3. new plots? Code a new gg_XXX
+```R
+dev(...)
+par(...)
+plot(...)
+fun1(...)
+fun2(...)
+dev.off()
+```
+
+<br>
+
+### ggplot2
+
+```R
+myplot <- ggplot() + gg_XX1 + gg_XX2 + gg_XX3
+myplot
+ggsave(...)
+```
+
+---
+# Hundreds of packages
+<br>
+
+### [List of packages](https://insileco.github.io/wiki/rgraphpkgs/)
+### [r-graph-gallery](https://www.r-graph-gallery.com/)
+### [data-to-viz](https://www.data-to-viz.com/)
+### [Cookbook for R](http://www.cookbook-r.com/Graphs/)
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+# denv as used above
+plot(x = denv2$alt,
+  y = denv2$amm)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
+  geom_point()
+p
+```
+]
+
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+plot(x = denv2$alt,
+  y = denv$amm,
+  type = "l")
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
+  geom_line()
+p
+```
+]
+
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm,
+  type = "l", xlab = "altitude", ylab = "amm")
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
+  geom_line()
+p
+```
+]
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm,
+  xlab = "altitude", ylab = "amm", type = "l")
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
+  geom_line() + xlab("altitude") + theme_bw()
+p
+```
+]
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm,
+  xlab = "altitude", type = "l")
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
+  geom_line() + xlab("altitude") + theme_bw()
+p
+```
+]
 
 
 
 ---
-# histograms
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm, pch = 19,
+  col = denv2$nit2)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm,
+  colour = nit2)) + geom_point() + xlab("altitude") + theme_bw()
+p
+```
+]
 
 
 ---
-# pie chart
+# Basic plots
+
+
+```{R}
+colors()[1:50]
+library(RColorBrewer)
+```
 
 ---
-# get circular
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm, pch = 19, xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1], cex = 2)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm, colour = nit2)) +
+  geom_point(size = 3) + xlab("altitude") + theme_bw()
+p
+```
+]
+
+
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1, mar = c(4,4,1,1))
+plot(x = denv2$alt, y = denv$amm, pch = 19, xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1], cex = 1.5)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm, colour = nit2)) +
+  geom_point(size = 3) + xlab("altitude") + theme_bw()
+p
+```
+]
+
+
+
+---
+# Export your figure
+<br>
+
+```R
+png("output/figb.png", unit = "in", width = 6, height = 5, res = 300)
+par(las = 1, mar = c(4,4,1,1))
+plot(x = denv2$alt, y = denv$amm, pch = 19, xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1], cex = 1.5)
+dev.off()
+```
+
+---
+# Export your figure
+<br>
+
+```R
+p <- denv2 %>% ggplot(aes(x = alt, y = amm, colour = nit2)) +
+  geom_point(size = 3) + xlab("altitude") + theme_bw()
+ggsave("output/figg.png", unit = "in", width = 6, height = 5)
+```
+
+
+---
+# Hints
+<br>
+
+### Base plots
+
+- remove all components and add one layer at a time
+- use `?par` as well as the help of the functions you'll use
+
+<br>
+
+### ggplot2
+
+- https://ggplot2.tidyverse.org/
+- find the geom (`gg_XXX`) you need: [ggplot2 extensions](https://www.ggplot2-exts.org/)
+
+
+---
+# Other graphs?
+<br>
+
+## [Cookbook for R](http://www.cookbook-r.com/Graphs/)
+
+## [r-graph-gallery](https://www.r-graph-gallery.com/)
+
+
+---
+# Boxplots
+
+`amm` vs in `denv2`
+
+--
+
+### Baseplot
+
+- `boxplot()`
+-  `par()`
+
+--
+
+### ggplot2
+
+- `geom_boxplot()`
+
+
+---
+# Boxplots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+boxplot(oxy~alt2, data = denv2)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt2, y = oxy)) + geom_boxplot()
+p
+```
+]
+
+
+
+---
+# Custom plot
+<br>
+
+- Let's create a 3-panels figure
+
+```{R}
+mat <- matrix(c(1,1,2,3), 2, 2)
+mat
+```
+
+
+---
+# Custom plot - 3 panels
+<br>
+
+.pull-left[
+```R
+layout(mat, widths = c(1.5, 1))
+layout.show(3)
+```
+]
+
+.pull-right[
+```{R, fig.width = 4, fig.height = 4, echo = FALSE}
+layout(mat, widths = c(1.5, 1))
+layout.show(3)
+```
+]
+
+---
+# Custom plot - 3 panels
+<br>
+
+.pull-left[
+```R
+layout(mat, widths = c(1.1, 1))
+par(las = 1, mar = c(4,4,1,1))
+#-- Panel 1
+plot(1,1)
+#-- Panel 2
+plot(x = denv2$alt, y = denv$amm,
+  pch = 19, xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1], cex = 1.2)
+#--  Panel 3
+boxplot(amm~alt2, data = denv2, ylim = c(0, 80))
+```
+]
+
+.pull-right[
+```{R, fig.width = 4, fig.height = 4, echo = FALSE}
+layout(mat, widths = c(1.2, 1))
+par(las = 1, mar = c(4,4,1,1))
+#-- Panel 1
+plot(1,1)
+#-- Panel 2
+plot(x = denv2$alt, y = denv$amm,
+  pch = 19,
+  xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1],
+  cex = 1.5)
+#--  Panel 3
+boxplot(amm~alt2, data = denv2,
+  ylim = c(0, 80))
+```
+]
+
+---
+# Custom plot - 3 panels
+<br>
+
+```{R, fig.width = 6, fig.height = 6, echo = FALSE}
+layout(mat, widths = c(1.2, 1))
+par(las = 1, mar = c(4,4,1,1))
+#-- Panel 1
+plot(denv2$alt, denv2$pho)
+#-- Panel 2
+plot(x = denv2$alt, y = denv$amm, pch = 19,
+  xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1],
+  cex = 1.5)
+#--  Panel 3
+boxplot(amm~alt2, data = denv2,
+  ylim = c(0, 80))
+```
+
+
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+plot(denv2$pho, -denv2$alt)
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+plot(denv2$pho, -exp(denv2$alt))
+```
+]
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt,
+  ann = FALSE, axes = FALSE,
+  type = "n")
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n")
+```
+]
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt,
+  ann = FALSE, axes = FALSE,
+  type = "n", xlim = c(0, 500),
+  ylim = c(-1000, 0))
+points(denv2$pho, -denv2$alt,
+  pch = 19, cex = 1.1)
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+par(las = 1, bty = "l", xaxs = "i", yaxs = "i")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n", xlim = c(0, 500),
+ylim = c(-1000, 0))
+points(denv2$pho, -denv2$alt, pch = 19, cex = 1.1)
+```
+]
+
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt,
+  ann = FALSE, axes = FALSE,
+  type = "n", xlim = c(0, 500),
+  ylim = c(-1000, 0))
+lines(denv2$pho, -denv2$alt,
+  lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+par(las = 1, bty = "l", xaxs = "i", yaxs = "i")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n", xlim = c(0, 500),
+ylim = c(-1000, -100))
+lines(denv2$pho, -denv2$alt, lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+```
+]
+
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt,
+  ann = FALSE, axes = FALSE,
+  type = "n", xlim = c(0, 500),
+  ylim = c(-1000, 0))
+lines(denv2$pho, -denv2$alt,
+  lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+title(main = "A",
+  xlab = "Phosphorous",
+  ylab = "Altitude")
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+par(las = 1, bty = "l", xaxs = "i", yaxs = "i")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n", xlim = c(0, 500),
+ylim = c(-1000, -100))
+lines(denv2$pho, -denv2$alt, lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+title(main = "A", xlab = "Phosphorous", ylab = "Altitude")
+```
+]
+
+
+
+---
+# Custom plot
+
+
+```{R, echo = FALSE}
+png("output/figure1.png", unit = "in", width = 7, height = 6, res = 300)
+layout(mat, widths = c(1.2, 1))
+par(mar = c(4,4,1,1))
+#-- Panel 1
+par(las = 1, bty = "l", xaxs = "i", yaxs = "i")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n", xlim = c(0, 500),
+ylim = c(-1000, -100))
+lines(denv2$pho, -denv2$alt, lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+title(main = "A", xlab = "Phosphorous", ylab = "Altitude")
+#-- Panel 2
+par(bty = "o", xaxs = "r", yaxs = "r")
+plot(x = denv2$alt, y = denv$amm, pch = 19,
+  xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1],
+  cex = 1.5)
+#--  Panel 3
+boxplot(oxy~alt2, data = denv2)
+```
+
+.center[![:scale 80%](output/figure1.png)]
+
+
+
+---
+# Custom plot
+<br>
+
+- Another example: https://insileco.github.io/Visualisation-SentinelleNord/#33
+
+- See https://insileco.github.io/VisualiseR/
+
+- Partition with ggplot2
+
+  - [article on sthda](http://www.sthda.com/english/wiki/ggplot2-facet-split-a-plot-into-a-matrix-of-panels)
+  - [see patchwork](https://github.com/thomasp85/patchwork)

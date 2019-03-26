@@ -1,5 +1,7 @@
 output/*.png
 output/*.jpeg
+output/*.csv
+output/*.rds
 
 # History files
 .Rhistory
