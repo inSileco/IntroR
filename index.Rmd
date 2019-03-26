@@ -159,6 +159,7 @@ class: inverse, center, middle
 1. An incredible tool for statistics
 2. Fairly accessible for non-programmer people
 3. A very high diversity of packages
+4. Improved workflow
 
 
 ---
@@ -568,7 +569,7 @@ library(tidyverse)
 ### &nbsp; 2. Select / Filter <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> find the data of interest
 ### &nbsp; 3. Join <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> combine data
 ### &nbsp; 4. Mutate / Aggregate <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> create new data
-### &nbsp; 5. Cast and Melt <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Format your data
+### &nbsp; 5. Cast and Melt <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Format your data (see tidyr)
 ### &nbsp; 6. R object(s) <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Export data / write file(s)
 
 
@@ -599,6 +600,8 @@ class(df3)
 
 ---
 # Doubs River Fish Dataset
+
+<br>
 
 .pull-left[
 
@@ -851,7 +854,7 @@ dim(dmerg)
 # Join
 <br>
 
-### Different way of joining data frame [(see documentation)](https://dplyr.tidyverse.org/reference/join.html)
+### Several ways of joining data frames [(see documentation)](https://dplyr.tidyverse.org/reference/join.html)
 
 
 ```{R}
@@ -2590,8 +2593,6 @@ summary(spe.h.pca)
 
 ---
 # PCA - Interpretation of Output
-
-<br/>
 
 ```{r, output.lines = 2:16}
 summary(spe.h.pca)
