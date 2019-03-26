@@ -6,8 +6,8 @@
 1. Installer les packages R suivants:
 
 ```R
-install.packages(c("tidyverse", "sf", "raster", "mapview", "vegan", "ade4",
-  "scales", "xaringan"))
+install.packages(c("tidyverse", "sf", "rgeos", "rgdal", "raster", "mapview",
+  "vegan", "ade4", "scales", "xaringan"))
 # Manipulation de données et figures
 library(tidyverse) # charge 8 packages
 # Spatial
