@@ -17,8 +17,9 @@ library(mapview)
 # Ordinations
 library(ade4)
 library(vegan)
+# Couleurs
 library(scales)
+library(RColorBrewer)
 # Pour reproduire la présentation
 library(xaringan)
-library(RColorBrewer)
 ```

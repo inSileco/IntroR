@@ -69,6 +69,8 @@ if (!require(ade4)) install.packages("ade4")
 library(ade4)
 if (!require(scales)) install.packages("scales")
 library(scales)
+if (!require(tidyverse)) install.packages("tidyverse")
+library(tidyverse)
 ```
 
 ```{r echo = FALSE}
@@ -210,7 +212,7 @@ setwd("pasth2workingdirectory")
 
 ```R
 install.packages(c("tidyverse", "sf", "raster", "mapview", "vegan", "ade4",
-  "scales", "xaringan"))
+  "scales", "Rcolorbrewer"))
 ```
 
 ---
@@ -526,7 +528,7 @@ class: inverse, center, middle
 <br>
 
 
-```{R}
+```{R, eval = F}
 library(tidyverse)
 ```
 
@@ -933,7 +935,7 @@ class: inverse, center, middle
 
 .pull-right[
 
-```{r echo=FALSE}
+```{r, echo=FALSE}
 <<load_data>>
 <<component_1>>
 ```
@@ -1121,7 +1123,8 @@ plot(x = denv2$alt,
 
 .pull-right[
 ```{R}
-p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
+p <- denv2 %>% 
+  ggplot(aes(x = alt, y = amm)) +
   geom_point()
 p
 ```
@@ -1143,7 +1146,8 @@ plot(x = denv2$alt,
 
 .pull-right[
 ```{R}
-p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
+p <- denv2 %>% 
+  ggplot(aes(x = alt, y = amm)) +
   geom_line()
 p
 ```
@@ -1157,15 +1161,16 @@ p
 
 ```{R}
 par(las = 1)
-plot(x = denv2$alt, y = denv$amm,
-  type = "l", xlab = "altitude", ylab = "amm")
+plot(x = denv2$alt, y = denv$amm, type = "l",
+    xlab = "altitude", ylab = "amm")
 ```
 ]
 
 
 .pull-right[
 ```{R}
-p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
+p <- denv2 %>% 
+  ggplot(aes(x = alt, y = amm)) +
   geom_line()
 p
 ```
@@ -1178,41 +1183,21 @@ p
 
 ```{R}
 par(las = 1)
-plot(x = denv2$alt, y = denv$amm,
-  xlab = "altitude", ylab = "amm", type = "l")
+plot(x = denv2$alt, y = denv$amm, type = "l",
+  xlab = "altitude", ylab = "amm")
 ```
 ]
 
 
 .pull-right[
 ```{R}
-p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
-  geom_line() + xlab("altitude") + theme_bw()
+p <- denv2 %>% 
+  ggplot(aes(x = alt, y = amm)) +
+  geom_line() + xlab("altitude") + 
+  theme_bw()
 p
 ```
 ]
-
----
-# Basic plots
-
-.pull-left[
-
-```{R}
-par(las = 1)
-plot(x = denv2$alt, y = denv$amm,
-  xlab = "altitude", type = "l")
-```
-]
-
-
-.pull-right[
-```{R}
-p <- denv2 %>% ggplot(aes(x = alt, y = amm)) +
-  geom_line() + xlab("altitude") + theme_bw()
-p
-```
-]
-
 
 
 ---
@@ -1231,7 +1216,9 @@ plot(x = denv2$alt, y = denv$amm, pch = 19,
 .pull-right[
 ```{R}
 p <- denv2 %>% ggplot(aes(x = alt, y = amm,
-  colour = nit2)) + geom_point() + xlab("altitude") + theme_bw()
+  colour = nit2)) + geom_point() + 
+  xlab("altitude") + 
+  theme_bw()
 p
 ```
 ]
@@ -1253,16 +1240,20 @@ library(RColorBrewer)
 
 ```{R}
 par(las = 1)
-plot(x = denv2$alt, y = denv$amm, pch = 19, xlab = "altitude", ylab = "amm",
-  col = c("salmon1", "turquoise2")[denv2$nit2+1], cex = 2)
+plot(x = denv2$alt, y = denv$amm, pch = 19, 
+     xlab = "altitude", ylab = "amm",
+     col = c("salmon1", "turquoise2")[denv2$nit2+1], 
+     cex = 2)
 ```
 ]
 
 
 .pull-right[
 ```{R}
-p <- denv2 %>% ggplot(aes(x = alt, y = amm, colour = nit2)) +
-  geom_point(size = 3) + xlab("altitude") + theme_bw()
+p <- denv2 %>% 
+  ggplot(aes(x = alt, y = amm, colour = nit2)) +
+  geom_point(size = 3) + 
+  xlab("altitude") + theme_bw()
 p
 ```
 ]
@@ -1276,16 +1267,20 @@ p
 
 ```{R}
 par(las = 1, mar = c(4,4,1,1))
-plot(x = denv2$alt, y = denv$amm, pch = 19, xlab = "altitude", ylab = "amm",
-  col = c("salmon1", "turquoise2")[denv2$nit2+1], cex = 1.5)
+plot(x = denv2$alt, y = denv$amm, pch = 19, 
+     xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1], 
+  cex = 1.5)
 ```
 ]
 
 
 .pull-right[
 ```{R}
-p <- denv2 %>% ggplot(aes(x = alt, y = amm, colour = nit2)) +
-  geom_point(size = 3) + xlab("altitude") + theme_bw()
+p <- denv2 %>% 
+  ggplot(aes(x = alt, y = amm, colour = nit2)) +
+  geom_point(size = 3) + xlab("altitude") + 
+  theme_bw()
 p
 ```
 ]
@@ -1351,7 +1346,7 @@ ggsave("output/figg.png", unit = "in", width = 6, height = 5)
 ### Baseplot
 
 - `boxplot()`
--  `par()`
+- `par()`
 
 --
 
@@ -1374,7 +1369,9 @@ boxplot(oxy~alt2, data = denv2)
 
 .pull-right[
 ```{R}
-p <- denv2 %>% ggplot(aes(x = alt2, y = oxy)) + geom_boxplot()
+p <- denv2 %>% 
+  ggplot(aes(x = alt2, y = oxy)) + 
+  geom_boxplot()
 p
 ```
 ]
@@ -1448,26 +1445,6 @@ boxplot(amm~alt2, data = denv2,
 ```
 ]
 
----
-# Custom plot - 3 panels
-<br>
-
-```{R, fig.width = 6, fig.height = 6, echo = FALSE}
-layout(mat, widths = c(1.2, 1))
-par(las = 1, mar = c(4,4,1,1))
-#-- Panel 1
-plot(denv2$alt, denv2$pho)
-#-- Panel 2
-plot(x = denv2$alt, y = denv$amm, pch = 19,
-  xlab = "altitude", ylab = "amm",
-  col = c("salmon1", "turquoise2")[denv2$nit2+1],
-  cex = 1.5)
-#--  Panel 3
-boxplot(amm~alt2, data = denv2,
-  ylim = c(0, 80))
-```
-
-
 
 ---
 # Custom plot - Panel 1
@@ -1481,7 +1458,7 @@ plot(denv2$pho, -denv2$alt)
 
 .pull-right[
 ```{R, echo = FALSE}
-plot(denv2$pho, -exp(denv2$alt))
+plot(denv2$pho, -(denv2$alt))
 ```
 ]
 
@@ -1604,7 +1581,7 @@ title(main = "A", xlab = "Phosphorous", ylab = "Altitude")
 # Custom plot
 
 
-```{R, echo = FALSE}
+```{R, eval = F}
 png("output/figure1.png", unit = "in", width = 7, height = 6, res = 300)
 layout(mat, widths = c(1.2, 1))
 par(mar = c(4,4,1,1))
@@ -1626,6 +1603,9 @@ plot(x = denv2$alt, y = denv$amm, pch = 19,
 #--  Panel 3
 boxplot(oxy~alt2, data = denv2)
 ```
+
+---
+# Custom plot
 
 .center[![:scale 80%](output/figure1.png)]
 
