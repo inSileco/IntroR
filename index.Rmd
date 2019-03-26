@@ -1969,7 +1969,7 @@ qc_neigh_prj <- st_transform(qc_neigh, crs = 32188)
 qc_neigh_prj
 ```
 
---
+---
 It would take a while to plot because there is a lot of unnecessary details, so
 we can simplify the shape of the polygons using `st_simplify()`.
 
@@ -1981,7 +1981,7 @@ qc_neigh_simple <- st_simplify(qc_neigh_prj,
 ---
 # Simple plot
 
-- default plot of `sf` object creates multiple maps (one per attribute). 
+- default plot of `sf` object creates multiple maps (one per attribute).
   - useful for exploring the spatial distribution of different variables.
 
 ```{r base_plot, message = FALSE, fig.height=6, fig.width=6, echo = -1}
