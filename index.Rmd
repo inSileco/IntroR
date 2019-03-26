@@ -1688,7 +1688,9 @@ library(vegan)
 library(mapview)
 library(RColorBrewer)
 opts_chunk$set(
-  dpi = 72
+  fig.width=6, fig.height=6,
+  dpi = 72,
+  fig.retina=3
 )
 ```
 
@@ -1852,10 +1854,14 @@ Many, many ways to represent the 3-D shape of the earth and to project it in a 2
 - each CRS can be defined either by an `EPSG` or a `proj4string`
 
 > The EPSG code is a numeric representation of a CRS, while the proj4string reprensents the full set of parameters spelled out in a string:
+>
 > <br>
-> EPSG `4326` <=> proj4 `+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs`
+>
+> EPSG `4326` ![:faic](arrow-right) proj4 `+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs`
+>
 > <br>
-> EPSG `32188` <=> proj4 `+proj=tmerc +lat_0=0 +lon_0=-73.5 +k=0.9999 +x_0=304800 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs`
+>
+> EPSG `32188` ![:faic](arrow-right) proj4 `+proj=tmerc +lat_0=0 +lon_0=-73.5 +k=0.9999 +x_0=304800 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs`
 
 - All geographic files are created with a specific CRS - but it's not always defined!
 
@@ -1975,7 +1981,8 @@ qc_neigh_simple <- st_simplify(qc_neigh_prj,
 ---
 # Simple plot
 
-Instead of creating a single map, the default plot of `sf` object creates multiple maps (one per attribute). This is often useful for exploring the spatial distribution of different variables.
+- default plot of `sf` object creates multiple maps (one per attribute). 
+  - useful for exploring the spatial distribution of different variables.
 
 ```{r base_plot, message = FALSE, fig.height=6, fig.width=6, echo = -1}
 par(mypar)
@@ -1985,7 +1992,7 @@ plot(qc_neigh_simple)
 ---
 # Simple plot
 
-```{r map_1, echo = -1, fig.width=9, fig.height=7}
+```{r map_1, echo = -1, fig.width=6, fig.height=6}
 par(mypar)
 # retrieve Québec only
 qc_simple <- dplyr::filter(qc_neigh_simple, NAME_1=="Québec")
@@ -2021,7 +2028,7 @@ raster of mean annual temperature (`bio1`) as a background to our map.
 
 - Let's use a low resolution so it does not take too long to plot.
 
-```{r temp, message = FALSE, fig.width=9}
+```{r temp, message = FALSE, warning=F, fig.width=8, fig.height=6}
 bioclim <- getData("worldclim", var = "bio", res = 10, path = "data")
 
 # There are 19 layers in this raster.
@@ -2075,7 +2082,7 @@ temp_crop <- crop(temp_prj, as(qc_simple, "Spatial"))
 temp_mask <- mask(temp_crop, qc_simple)
 ```
 
-```{r, echo = -1, fig.width=8, fig.height=4.5}
+```{r, echo = -1, fig.width=7, fig.height=5}
 par(mypar)
 par(mfrow = c(1,2))
 raster::plot(temp_crop, main = "crop")
@@ -2091,7 +2098,7 @@ class: inverse, center, middle
 ---
 # Creating a simple layout
 
-```{r layout}
+```{r layout, fig.width = 5.5, fig.height = 6}
 my.layout <- layout(matrix(1:2, 2), heights = c(1,.2))
 layout.show(my.layout)
 ```
@@ -2183,7 +2190,7 @@ plot(st_geometry(sample_pts), add = TRUE, pch = 21,
 
 Create a color legend manually
 
-```{r, echo = -1, fig.height=5}
+```{r, echo = -1, fig.height=4}
 par(mypar)
 val <- range(values(temp_mask), na.rm = TRUE)
 val
@@ -2225,7 +2232,7 @@ class: inverse, center, middle
 # Interactive map
 
 
-```{r mapview1, fig.width=12.4, fig.height=6.5}
+```{r mapview1, fig.width=11, fig.height=6}
 mapView(qc_simple)
 ```
 
@@ -2233,14 +2240,14 @@ mapView(qc_simple)
 ---
 # Interactive map
 
-```{r mapview_pts, fig.width=12.4, fig.height=6.5}
+```{r mapview_pts, fig.width=11, fig.height=6}
 mapView(sample_pts, layer.name = "Species richness")
 ```
 
 ---
 # Interactive map
 
-```{r mapview3, fig.width=12.4, fig.height=6.5}
+```{r mapview3, fig.width=11, fig.height=6}
 mapView(sample_pts, col.regions = "red", cex = 'richness', legend = FALSE,
         map.types = "Esri.WorldImagery")
 ```
@@ -2451,10 +2458,10 @@ barplot(ab, las = 1, col = grey(5:0/5),
 **How do we interpret the double absence of species in a matrix of species abundances (or presence-absence)?**
 
 <img style="float: right; width:50%;margin: 1%" src="images/double-zero.png">
-- the *presence* of a species in 2 sites indicates ecological resemblance between these 2 sites
+- the .red[*presence*] of a species in 2 sites indicates .red[ecological resemblance] between these 2 sites
   - the sites provide a set of minimal conditions allowing the species to survive.
 
-- the *absence* of a species from 2 sites cannot be interpreted as a resemblance because it may be due to a variety of causes: competition, several dimensions of the niche (pH, light, temperature...), random dispersal process.
+- the .red[*absence*] of a species from 2 sites may be due to a .red[variety of causes]: competition, several dimensions of the niche (pH, light, temperature...), random dispersal process.
 
 
 
@@ -2476,9 +2483,9 @@ PCA and RDA are based on the Euclidean distance.]
 Here we want to measure the ecological resemblance (distance or similarity) among sites.
 
 <img style="float: right; width:30%;margin: 1%" src="images/distMes.png">
-- If we compare the sites based on their **environmental variables**, we can use the **Eucidean distance**
+- To compare sites based on their .alert[environmental variables], we can use the .alert[Eucidean distance]
 
-- If we compare the sites based on their **species composition**, we don't want to consider double-zero as a similarity. **Euclidean distance is not appropriate**.
+- To compare sites based on their .alert[species composition], we don't want to consider double-zero as a similarity. .alert[Euclidean distance is not appropriate].
   - Solution 1: **Pre-transform** the species matrix to trick the PCA or RDA to use an appropriate distance such as Hellinger.
   - Solution 2: Run a correspondance analysis (CA) which is based on the Chi-square distance
   - Solution 3: Compute a distance matrix from the species matrix and run a PCoA
@@ -2518,13 +2525,15 @@ apply(env.z, 2, sd)
 spe.hel <- decostand(spe, method = "hellinger")
 ```
 
-Other transformation methods:
+<br>
 
-`method = "chi.square"` ![:faic](arrow-right) **$\chi^2$**. When using this transformation in a PCA, the result will be similar to the result of a correspondance analysis (CA)
+### Other transformation methods:
 
-`method = "normalize"` ![:faic](arrow-right) **Chord transformation**
+- `method = "chi.square"` ![:faic](arrow-right) **Chi-2 transformation**. Using this transformation in a PCA yields similar results to that of a correspondance analysis (CA).
 
-`method = "total"` ![:faic](arrow-right)  **Species profile transformation**
+- `method = "normalize"` ![:faic](arrow-right) **Chord transformation**
+
+- `method = "total"` ![:faic](arrow-right)  **Species profile transformation**
 
 > According to [Legendre & Gallagher](http://adn.biol.umontreal.ca/~numericalecology/Reprints/Legendre_&_Gallagher.pdf): The Hellinger and chord transformations appear to be the best for general use with species data.
 
@@ -2624,7 +2633,7 @@ summary(spe.h.pca)
 ---
 # PCA - Interpretation of Output
 
-```{r, output.lines = 40:50}
+```{r, output.lines = 36:46}
 summary(spe.h.pca)
 ```
 
@@ -2638,7 +2647,7 @@ summary(spe.h.pca)
 ---
 # PCA - Interpretation of Output
 
-```{r, output.lines = 72:82}
+```{r, output.lines = 68:78}
 summary(spe.h.pca)
 ```
 
@@ -3130,6 +3139,18 @@ text(env.scores[,1]+sign(env.scores[,1])*.05, # shift labels
      col = "#CC3311", cex = 1, font = 2)
 ```
 
+---
+# Great online resources
+
+- Multivariate analyses - dissimilarity measures, clustering, PCA, CA...:  
+  - [en](https://wiki.qcbs.ca/r_workshop9)
+  - [fr](https://wiki.qcbs.ca/r_atelier9)
+- Advance multivariate analyses - RDA, CCA, MRT:
+  - [en](https://wiki.qcbs.ca/r_workshop10)
+  - [fr](https://wiki.qcbs.ca/r_atelier10)
+
+- Book with R scripts - [Numerical Ecology with R](http://adn.biol.umontreal.ca/~numericalecology/numecolR/)
+  - [First edition available online](http://jinliangliu.weebly.com/uploads/2/5/7/8/25781074/numerical_ecology_with_r.pdf)
 
 ---
 class: inverse, center, middle
