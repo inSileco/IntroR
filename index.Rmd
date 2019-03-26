@@ -1970,6 +1970,8 @@ qc_neigh_prj
 ```
 
 ---
+# Prep vector data
+
 It would take a while to plot because there is a lot of unnecessary details, so
 we can simplify the shape of the polygons using `st_simplify()`.
 
@@ -3156,3 +3158,5 @@ text(env.scores[,1]+sign(env.scores[,1])*.05, # shift labels
 class: inverse, center, middle
 
 # Thank you for attending this workshop!
+
+## MH c'est la meilleure
