@@ -71,7 +71,24 @@ library(tidyverse)
 ```
 
 
+<br><br><br>
 
+.maintitle[<i class="fa fa-angle-double-right" aria-hidden="true"></i>intRoduction]
+<hr>
+
+<br>
+
+
+### Marie-Hélène Brice
+### Kevin Cazelles
+
+#### UQAM - March 26th, 2019 -- [<i class="fa fa-github" aria-hidden="true"></i>](https://github.com/inSileco/IntroR)
+
+
+.right[
+  ![:scale 20%](images/inSilecoLogo.png)
+  ![:scale 20%](images/Rlogo.png)
+  ]
 
 ---
 # Aims
@@ -1668,7 +1685,7 @@ library(vegan)
 library(mapview)
 library(RColorBrewer)
 opts_chunk$set(
-  dpi = 96
+  dpi = 72
 )
 ```
 
