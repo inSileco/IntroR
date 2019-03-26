@@ -11,21 +11,23 @@ output:
     css: ["default", "inSileco.css", "inSileco-fonts.css"]
     nature:
       beforeInit: "inSileco-macros.js"
-      highlightLines: false
 ---
 
-```{r setup, echo = F}
+
+
+```{r setup, echo = FALSE}
 ## Setup for your presentation
 library(knitr)
 
 opts_chunk$set(
-  eval = T,
-  cache = T,
+  eval = TRUE,
+  cache = FALSE,
   comment = "#",
   collapse = TRUE,
   warning = FALSE,
   message = FALSE,
   fig.width=5, fig.height=5,
+  dpi = 300,
   fig.align = 'center'
 )
 
@@ -50,31 +52,1604 @@ knit_hooks$set(output = function(x, options) {
   x <- paste(c(x, ""), collapse = "\n")
   hook_output(x, options)
 })
+
+options(width = 92)
 ```
 
 ```{r, echo = F}
 mypar = list(mar = c(3,3,1,0.5), mgp = c(1.6, 0.3, 0), tck = -.02, cex = 1.5)
 
 options(repos=structure(c(CRAN="http://cran.r-project.org")))
+knitr::read_chunk("scripts/code_R.R")
 ```
 
 ```{r, include = FALSE}
-if (!require(vegan)) install.packages("vegan")
 library(vegan)
-if (!require(ade4)) install.packages("ade4")
 library(ade4)
-if (!require(scales)) install.packages("scales")
 library(scales)
-if (!require(sf)) install.packages("sf")
-library(sf)
-if (!require(raster)) install.packages("raster")
-library(raster)
-if (!require(RColorBrewer)) install.packages("RColorBrewer")
-library(RColorBrewer)
-if (!require(mapview)) install.packages("mapview")
-library(mapview)
+library(tidyverse)
 ```
 
+
+
+
+---
+# Aims
+
+<br>
+
+### &nbsp; Better ideas about what R actually is
+### &nbsp; Better ideas about what R can do
+### &nbsp; Better ideas about the topics covered
+
+---
+# Outline
+
+### &nbsp; <i class="fa fa-commenting-o" aria-hidden="true"></i> R? ~10min
+### &nbsp; <i class="fa fa-wrench" aria-hidden="true"></i> Data manipulations ~1h15min
+### &nbsp; <i class="fa fa-bar-chart" aria-hidden="true"></i> Data visualization (part1) ~30min
+### &nbsp; <i class="fa fa-cutlery" aria-hidden="true"></i> Lunch break 12pm
+### &nbsp; <i class="fa fa-bar-chart" aria-hidden="true"></i> Data visualization (part2) ~30min
+### &nbsp; <i class="fa fa-map" aria-hidden="true"></i> mapping ~ 1h30
+### &nbsp; <i class="fa fa-coffee" aria-hidden="true"></i> *coffee break* 3pm
+### &nbsp; <i class="fa fa-sitemap" aria-hidden="true"></i> ordination ~1h30
+
+
+
+---
+class: inverse, center, middle
+
+# R?
+
+## <i class="fa fa-commenting-o" aria-hidden="true"></i>
+
+
+---
+# R
+
+<br>
+
+> R is a programming language and free software environment for statistical computing and graphics [...].
+
+<br>
+
+> The R language is widely used among statisticians and data miners for developing statistical software and data analysis.
+
+[R (programming language) - Wikipedia](https://en.wikipedia.org/wiki/R_(programming_language)
+
+
+---
+# R is popular
+
+.center[![:scale 85%](images/redmonk.png)]
+
+[Python](https://www.python.org/) / [Julia](https://julialang.org/)
+
+
+---
+# R is popular among Biological Sciences
+
+### For instance
+
+1. Ecologists
+2. Bioinformatics [(Bioconductor)](https://www.bioconductor.org/)
+3. Medicine [<i class="fa fa-external-link" aria-hidden="true"></i>](https://r-medicine.com/)
+
+--
+
+### Why?
+
+1. An incredible tool for statistics
+2. Fairly accessible for non-programmer people
+3. A very high diversity of packages
+
+
+---
+# R is popular
+
+.center[![:scale 72%](https://revolution-computing.typepad.com/.a/6a010534b1db25970b01b8d2594d25970c-800wi)]
+
+[*CRAN now has 10,000 R packages* Revolutions. January, 2017](https://blog.revolutionanalytics.com/2017/01/cran-10000.html)
+
+[MetaCRAN](https://www.r-pkg.org/) / [R Package Documentation](https://rdrr.io/)
+
+
+
+
+---
+# R, RStudio, Ropenscience?
+
+### Main links
+
+- [R project](https://www.r-project.org/)
+- [CRAN](https://cran.r-project.org/)
+- [RStudio](https://www.rstudio.com/)
+- [rOpenSci](https://ropensci.org)
+
+### Get reliable documentation
+
+- [CRAN Manual & Contributed](https://cran.r-project.org/)
+- [bookdown](https://bookdown.org/)
+- [RStudio](https://www.rstudio.com/)
+  - [Cheat Sheets](https://www.rstudio.com/resources/cheatsheets/)
+  - [Webinars](https://resources.rstudio.com/webinars)
+- [QCBS](https://qcbsrworkshops.github.io/Workshops/)
+- [DataCarpentery](https://datacarpentry.org/R-genomics/index.html)
+- [<i class="fa fa-stack-overflow" aria-hidden="true"></i>](https://stackoverflow.com/questions/tagged/r)
+
+
+
+
+---
+class: inverse, center, middle
+
+# Data manipulation
+
+## <i class="fa fa-wrench" aria-hidden="true"></i>
+
+
+
+---
+# Let's start
+<br>
+
+- Open R console / R GUI / RStudio / ...
+
+--
+
+```R
+getwd()
+setwd("pasth2workingdirectory")
+```
+
+--
+
+- Install the following packages
+
+```R
+install.packages(c("tidyverse", "sf", "raster", "mapview", "vegan", "ade4",
+  "scales", "Rcolorbrewer"))
+```
+
+---
+# R's principles
+<br>
+
+
+### 1. Everything in R is an object
+
+### 2. Everything that happens in R is a function call
+
+### 3. Interfaces to other software are part of R.
+
+
+[Extending-R by Chambers](https://www.crcpress.com/Extending-R/Chambers/p/book/9781498775717)
+
+---
+# Everything in R is an object
+<br>
+
+```{R}
+2
+```
+
+--
+
+```{R}
+class(2)
+```
+--
+
+```{R}
+class("A")
+class(library)
+plot
+```
+
+---
+class: center
+# Everything that happens in R is a function call
+<br>
+
+```R
+class(2)
+```
+## <i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i>
+
+### `enter`
+
+## <i class="fa fa-arrow-circle-o-down" aria-hidden="true"></i>
+
+```{R, echo = FALSE}
+class(2)
+```
+
+
+---
+# Interfaces to other software are part of R
+<br>
+
+### Four examples among many others:
+
+- [Rcpp](https://cran.r-project.org/web/packages/Rcpp/index.html)
+
+- [Reticulate](https://rstudio.github.io/reticulate/index.html)
+
+- [Rmarkdown](https://rmarkdown.rstudio.com/)
+
+- [plotly](https://plot.ly/r/)
+
+- [mapview](https://r-spatial.github.io/mapview/)
+
+
+---
+# Basic commands
+
+```{R, basic1}
+2+2
+2*3
+3>2
+```
+
+--
+
+```{R, basic2}
+let <- LETTERS[1:10]
+let2 = LETTERS[1:10]
+let
+let2
+identical(let, let2)
+```
+
+--
+```{R, basic3}
+let3 <- sample(let, 5)
+let2
+```
+
+--
+
+```R
+# Functions documentation
+?sample
+```
+
+---
+# Vectors
+
+**Create a vector**
+
+```{R, basic4}
+vec <- c(2:5, 9:12, 2)
+vec
+vec > 4
+```
+
+--
+
+```{R, vec}
+let
+length(let)
+```
+--
+
+**Subset a vector**
+
+```{R, vec2}
+let[1:2]
+let[c(1:2, 5:6)]
+let[-c(1,7)]
+vec[vec > 4]
+let[let > "C"]
+```
+
+---
+# Matrices
+
+```{R, mat}
+# use arguments
+mat <- matrix(1:18, ncol = 3, nrow = 6)
+mat
+dim(mat)
+mat[1,2]
+```
+--
+
+```{R, mat2}
+mat[1,]
+mat[,2]
+mat[2:4, 1:2]
+```
+
+---
+# Data frames
+
+## &nbsp; &nbsp; <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+
+--
+
+```{R, dataframe}
+df <- data.frame(
+  letter = let[1:5],
+  val = vec[1:5],
+  logic = vec[1:5]>2
+)
+df
+class(df)
+dim(df)
+```
+
+---
+# Data frames
+
+```{R, dataframe2}
+df[1, 1]
+```
+
+```{R, dataframe3}
+df$letter
+df[,1]
+df[1]
+df[1:2]
+```
+
+```{R, dataframe4}
+class(df$letter)
+class(df$val)
+```
+
+---
+# Data frames
+<br>
+
+```{R}
+library(datasets)
+```
+
+To see the list of available datasets:
+
+```R
+data()
+```
+
+To access the documentation of a particular dataset:
+
+```R
+?CO2
+```
+
+
+---
+# Data frames
+
+```{R}
+library(datasets)
+head(CO2)
+names(CO2)
+summary(CO2)
+```
+
+--
+
+```{R}
+CO2$Plant
+```
+
+
+---
+# Lists
+
+```{R}
+mylist <- list(CO2 = CO2, mymat = mat, mylet = let[1], awesome = "cool")
+names(mylist)
+mylist$awesome
+mylist[3:4]
+```
+
+--
+
+```{R}
+class(mylist[2])
+class(mylist[[2]])
+mylist[[2]]
+class(mylist[[2]][2,3])
+mylist[[2]][2,3]
+```
+
+
+---
+# For loops
+
+```{R}
+for (i in 1:4) {
+  # actions
+  print(i)
+}
+```
+
+```{R}
+for (j in LETTERS[1:5]) {
+  print(j)
+}
+```
+
+```{R}
+for (i in c(1,4,6)) {
+  print(i)
+}
+```
+
+
+---
+# Logical conditions &nbsp; > &nbsp; >= &nbsp; < &nbsp; <= &nbsp; == &nbsp; !=
+
+--
+
+```{R}
+vec <- c(2:5, 9:12, 2)
+vec
+vec[1] > 4
+vec > 4
+```
+
+--
+
+`if` ... `else` ...
+
+```{R}
+for (i in vec) {
+  if (i <= 5) {
+   # actions
+   print(i)
+ } else {
+   print("nope")
+ }
+}
+```
+
+
+
+
+---
+class: inverse, center, middle
+
+# Questions?
+
+## <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+
+
+---
+# Tidyverse - a metapackage
+
+<br>
+
+
+```{R, eval = F}
+library(tidyverse)
+```
+
+### <i class="fa fa-wrench" aria-hidden="true"></i> A great tool belt for data science [<i class="fa fa-external-link" aria-hidden="true"></i>](https://www.tidyverse.org/)
+
+--
+
+- <i class="fa fa-check" aria-hidden="true"></i> Pros:
+  - well-documented, intuitive
+  - efficient
+  - very popular
+
+- <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>Cons:
+  - an alternative way of doing the same manipulation things
+  - prevents the user from learning programming basics
+
+
+
+---
+# Data manipulations
+<br>
+
+### &nbsp; 1. Import data / read file(s) <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> get R object(s)
+### &nbsp; 2. Select / Filter <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> find the data of interest
+### &nbsp; 3. Join <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> combine data
+### &nbsp; 4. Mutate / Aggregate <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> create new data
+### &nbsp; 5. Cast and Melt <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Format your data
+### &nbsp; 6. R object(s) <i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Export data / write file(s)
+
+
+
+---
+# Read a file
+
+```{R, read}
+df2 <- read.csv("data/environ.csv")
+head(df2, 3)
+class(df2)
+```
+--
+
+```{R, readr}
+df3 <- read_csv("data/environ.csv")
+head(df3, 3)
+class(df3)
+```
+
+--
+
+- `read.table()`
+- [SQL in R](http://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/sql.html)
+- [MongoDB in R](https://jeroen.github.io/mongolite/)
+- [MariaDB](https://mariadb.com/kb/en/library/r-statistical-programming-using-mariadb-as-the-background-database/)
+
+
+---
+# Doubs River Fish Dataset
+
+.pull-left[
+
+Verneaux (1973) dataset:
+- characterization of fish communities
+- 27 different species
+- 30 different sites
+- 11 environmental variables
+
+Load the Doubs River species data
+
+```{r}
+library(ade4)
+data(doubs)
+# ?doubs
+```
+
+]
+
+.pull.right[
+![:scale 50%](images/DoubsRiver.png)
+]
+
+
+---
+# Dataset 'doubs' in package 'ade4'
+<br>
+
+
+```{R}
+class(doubs)
+names(doubs)
+head(doubs$env)
+```
+
+
+---
+# Dataset 'doubs' in package 'ade4'
+<br>
+
+```{R}
+as_tibble(doubs$env)
+```
+
+---
+# Piping
+
+--
+
+```{R, pip1}
+res <- as_tibble(data.frame(res = log(diff(exp(1:6)))))
+res
+```
+
+--
+
+```{R, pip2}
+# library(magrittr)
+res <- 1:6 %>% exp %>% diff %>% log %>% as.data.frame(col.names = "res") %>% as_tibble
+res
+```
+
+
+---
+# Select
+
+--
+
+```{R}
+denv <- as_tibble(doubs$env)
+dim(denv)
+names(denv)
+head(denv, 20)
+```
+
+---
+# Select
+
+```{R}
+head(denv[, c(1:2, 5)])
+head(denv[, c("dfs", "alt", "pH")])
+```
+
+---
+# Select
+
+```{R}
+denvS <- denv %>% select(dfs, alt, pH)
+head(denvS)
+```
+
+```{R}
+denvS <- denv %>% select(alt, pH, dfs)
+head(denvS)
+```
+
+
+---
+# Select
+
+```{R}
+head(denv[, -c(1:2, 5)])
+# head(denv[, -c("dfs", "alt", "pH")]) won't work
+```
+
+```{R}
+denv %>% select(-dfs, -alt, -pH)
+```
+
+
+---
+# Filter
+
+```{R}
+denv$alt
+```
+
+--
+
+```{R, filter}
+denvF <- denv %>% dplyr::filter(alt > 400)
+denvF
+```
+
+---
+# Filter
+<br>
+
+```{R}
+denvF2 <- denv %>% dplyr::filter(alt > 400 & pH>=80)
+denvF2
+```
+
+---
+# Filter
+<br>
+
+```{R}
+denvF3 <- denv %>% dplyr::filter(alt > 600 | pH>=82)
+denvF3
+```
+
+---
+# Filter
+<br>
+
+Selection + Filter
+
+--
+
+```{R}
+denvF4 <- denv %>% select(dfs, alt, pH) %>% dplyr::filter(alt > 400 & pH>=80)
+denvF4
+```
+
+
+---
+# Mutate
+<br>
+
+--
+
+```{R, mutate}
+denvM <- denv %>% mutate(pH2 = pH + 1)
+denvM
+```
+
+---
+# Mutate
+<br>
+
+
+```{R}
+denvM2 <- denv %>% mutate(index = 2*nit + pho + amm)
+denvM2
+```
+
+
+---
+# Mutate
+
+```{R}
+denvM3 <- denv %>%
+  select(dfs, alt, pH, nit, pho, amm) %>%
+  dplyr::filter(alt > 400) %>%
+  mutate(pH2 = pH + 1) %>%
+  mutate(index = 2*nit + pho + amm)
+denvM3
+```
+
+---
+# Mutate
+
+```{R}
+model <- denv %>%
+  select(dfs, alt, pH, nit, pho, amm) %>%
+  dplyr::filter(alt > 400) %>%
+  mutate(pH2 = pH + 1) %>%
+  mutate(index = 2*nit + pho + amm) %>%
+  lm(index ~ pH2, data = .)
+summary(model)
+```
+
+---
+class: inverse, center, middle
+
+# Questions?
+
+## <i class="fa fa-question-circle-o" aria-hidden="true"></i>
+
+
+
+
+---
+# Join
+<br>
+
+--
+
+
+```{R}
+dfis <- doubs$fish
+head(denv, 4)
+head(dfis, 4)
+```
+
+---
+# Join
+<br>
+
+```{R}
+denv <- denv %>% mutate(idSite = 1:nrow(denv))
+head(denv, 4)
+
+dfis$idSite <- 1:nrow(denv)
+head(dfis, 4)
+```
+
+---
+# Join
+<br>
+
+```{R}
+dmerg <- denv %>% inner_join(dfis)
+head(dmerg)
+dim(dmerg)
+```
+
+---
+# Join
+<br>
+
+### Different way of joining data frame [(see documentation)](https://dplyr.tidyverse.org/reference/join.html)
+
+
+```{R}
+dmerg1 <- denv[-1,] %>% inner_join(dfis[-2,])
+dim(dmerg1)
+```
+
+--
+
+```{R}
+dmerg2 <- denv[-1,] %>% right_join(dfis[-2,])
+dmerg3 <- denv[-1,] %>% left_join(dfis[-2,])
+dmerg4 <- denv[-1,] %>% full_join(dfis[-2,])
+dim(dmerg2)
+dim(dmerg3)
+dim(dmerg4)
+```
+
+
+---
+# Aggregate
+<br>
+
+--
+
+```{R}
+denv2 <- denv %>% mutate(nit2 = nit >=125)
+denv2
+```
+
+---
+# Aggregate
+<br>
+
+```{R}
+denv2$alt2 <- "low"
+denv2$alt2[denv2$alt>450] <- "medium"
+denv2$alt2[denv2$alt>750] <- "high"
+denv2$alt2 <- as.factor(denv2$alt2)
+denv2
+```
+
+
+---
+# Aggregate
+<br>
+
+```{R}
+denv2 %>% group_by(nit2) %>% summarize(n())
+denv2 %>% group_by(nit2, alt2) %>% summarize(n())
+```
+
+---
+# Aggregate
+<br>
+
+```{R}
+denv2 %>% group_by(nit2) %>% summarize(n())
+denv2 %>% group_by(nit2, alt2) %>%
+  summarize(nb_obs = n(), mean_amm = mean(amm), sd_oxy = sd(oxy))
+```
+
+
+---
+# Write files
+
+### Write data frames
+
+```{R, write}
+write.csv(dmerg, "output/dmerg.csv")
+write_csv(dmerg, "output/dmerg2.csv")
+```
+--
+
+### Write any R objects
+
+```{R}
+saveRDS(doubs, "output/doubs.rds")
+# readRDS("output/dmerg.rds")
+write_rds(doubs, "output/doubs.rds")
+# read_rds
+```
+
+
+
+
+
+
+
+---
+class: inverse, center, middle
+
+# Data visualization
+
+## <i class="fa fa-bar-chart" aria-hidden="true"></i>
+
+
+---
+# Data visualization
+<br>
+
+## [Material +](https://insileco.github.io/Visualisation-SentinelleNord/#1)
+
+## [bookdown](https://bookdown.org/)
+
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+]
+
+.pull-right[
+
+```{r, echo=FALSE}
+<<load_data>>
+<<component_1>>
+```
+]
+
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+- plot window
+]
+
+.pull-right[
+
+```{r echo=FALSE}
+<<load_data>>
+<<component_2>>
+```
+]
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+]
+
+
+.pull-right[
+```{r echo=FALSE}
+<<load_data>>
+<<component_3>>
+```
+]
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+- data
+]
+
+
+.pull-right[
+```{r echo=FALSE}
+<<load_data>>
+<<component_4>>
+```
+]
+
+---
+# Components
+<br>
+
+.pull-left[
+
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+- data
+- axes
+]
+
+.pull-right[
+
+```{r echo=FALSE}
+<<load_data>>
+<<component_5>>
+```
+]
+
+---
+# Components
+<br>
+
+.pull-left[
+
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+- data
+- axes
+- title
+]
+
+
+.pull-right[
+```{r echo=FALSE}
+<<load_data>>
+<<component_6>>
+```
+]
+
+
+---
+# Components
+<br>
+
+.pull-left[
+- "a chart is worth a thousand words"
+- plot window
+- plot region
+- data
+- axes
+- titles
+- legend
+]
+
+
+.pull-right[
+```{r echo=FALSE}
+<<load_data>>
+<<component_7>>
+```
+]
+
+
+
+
+---
+# graphics vs grid
+<br>
+
+.center[![:scale 80%](images/Murrell2015.jpg)]
+
+Murrell, P. (2015) [The gridGraphics Package]("https://journal.r-project.org/archive/2015-1/murrell.pdf"). The R Jounal.
+
+
+---
+# Workflows
+
+
+### Base plot
+
+```R
+dev(...)
+par(...)
+plot(...)
+fun1(...)
+fun2(...)
+dev.off()
+```
+
+<br>
+
+### ggplot2
+
+```R
+myplot <- ggplot() + gg_XX1 + gg_XX2 + gg_XX3
+myplot
+ggsave(...)
+```
+
+---
+# Hundreds of packages
+<br>
+
+### [List of packages](https://insileco.github.io/wiki/rgraphpkgs/)
+### [r-graph-gallery](https://www.r-graph-gallery.com/)
+### [data-to-viz](https://www.data-to-viz.com/)
+### [Cookbook for R](http://www.cookbook-r.com/Graphs/)
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+# denv as used above
+plot(x = denv2$alt,
+  y = denv2$amm)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>%
+  ggplot(aes(x = alt, y = amm)) +
+  geom_point()
+p
+```
+]
+
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+plot(x = denv2$alt,
+  y = denv$amm,
+  type = "l")
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>%
+  ggplot(aes(x = alt, y = amm)) +
+  geom_line()
+p
+```
+]
+
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm, type = "l",
+    xlab = "altitude", ylab = "amm")
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>%
+  ggplot(aes(x = alt, y = amm)) +
+  geom_line()
+p
+```
+]
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm, type = "l",
+  xlab = "altitude", ylab = "amm")
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>%
+  ggplot(aes(x = alt, y = amm)) +
+  geom_line() + xlab("altitude") +
+  theme_bw()
+p
+```
+]
+
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm, pch = 19,
+  col = denv2$nit2)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>% ggplot(aes(x = alt, y = amm,
+  colour = nit2)) + geom_point() +
+  xlab("altitude") +
+  theme_bw()
+p
+```
+]
+
+
+---
+# Basic plots
+
+
+```{R}
+colors()[1:50]
+library(RColorBrewer)
+```
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+plot(x = denv2$alt, y = denv$amm, pch = 19,
+     xlab = "altitude", ylab = "amm",
+     col = c("salmon1", "turquoise2")[denv2$nit2+1],
+     cex = 2)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>%
+  ggplot(aes(x = alt, y = amm, colour = nit2)) +
+  geom_point(size = 3) +
+  xlab("altitude") + theme_bw()
+p
+```
+]
+
+
+
+---
+# Basic plots
+
+.pull-left[
+
+```{R}
+par(las = 1, mar = c(4,4,1,1))
+plot(x = denv2$alt, y = denv$amm, pch = 19,
+     xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1],
+  cex = 1.5)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>%
+  ggplot(aes(x = alt, y = amm, colour = nit2)) +
+  geom_point(size = 3) + xlab("altitude") +
+  theme_bw()
+p
+```
+]
+
+
+
+---
+# Export your figure
+<br>
+
+```R
+png("output/figb.png", unit = "in", width = 6, height = 5, res = 300)
+par(las = 1, mar = c(4,4,1,1))
+plot(x = denv2$alt, y = denv$amm, pch = 19, xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1], cex = 1.5)
+dev.off()
+```
+
+---
+# Export your figure
+<br>
+
+```R
+p <- denv2 %>% ggplot(aes(x = alt, y = amm, colour = nit2)) +
+  geom_point(size = 3) + xlab("altitude") + theme_bw()
+ggsave("output/figg.png", unit = "in", width = 6, height = 5)
+```
+
+
+---
+# Hints
+<br>
+
+### Base plots
+
+- remove all components and add one layer at a time
+- use `?par` as well as the help of the functions you'll use
+
+<br>
+
+### ggplot2
+
+- https://ggplot2.tidyverse.org/
+- find the geom (`gg_XXX`) you need: [ggplot2 extensions](https://www.ggplot2-exts.org/)
+
+
+---
+# Other graphs?
+<br>
+
+## [Cookbook for R](http://www.cookbook-r.com/Graphs/)
+
+## [r-graph-gallery](https://www.r-graph-gallery.com/)
+
+
+---
+# Boxplots
+
+`amm` vs in `denv2`
+
+--
+
+### Baseplot
+
+- `boxplot()`
+- `par()`
+
+--
+
+### ggplot2
+
+- `geom_boxplot()`
+
+
+---
+# Boxplots
+
+.pull-left[
+
+```{R}
+par(las = 1)
+boxplot(oxy~alt2, data = denv2)
+```
+]
+
+
+.pull-right[
+```{R}
+p <- denv2 %>%
+  ggplot(aes(x = alt2, y = oxy)) +
+  geom_boxplot()
+p
+```
+]
+
+
+
+---
+# Custom plot
+<br>
+
+- Let's create a 3-panels figure
+
+```{R}
+mat <- matrix(c(1,1,2,3), 2, 2)
+mat
+```
+
+
+---
+# Custom plot - 3 panels
+<br>
+
+.pull-left[
+```R
+layout(mat, widths = c(1.5, 1))
+layout.show(3)
+```
+]
+
+.pull-right[
+```{R, fig.width = 4, fig.height = 4, echo = FALSE}
+layout(mat, widths = c(1.5, 1))
+layout.show(3)
+```
+]
+
+---
+# Custom plot - 3 panels
+<br>
+
+.pull-left[
+```R
+layout(mat, widths = c(1.1, 1))
+par(las = 1, mar = c(4,4,1,1))
+#-- Panel 1
+plot(1,1)
+#-- Panel 2
+plot(x = denv2$alt, y = denv$amm,
+  pch = 19, xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1], cex = 1.2)
+#--  Panel 3
+boxplot(amm~alt2, data = denv2, ylim = c(0, 80))
+```
+]
+
+.pull-right[
+```{R, fig.width = 4, fig.height = 4, echo = FALSE}
+layout(mat, widths = c(1.2, 1))
+par(las = 1, mar = c(4,4,1,1))
+#-- Panel 1
+plot(1,1)
+#-- Panel 2
+plot(x = denv2$alt, y = denv$amm,
+  pch = 19,
+  xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1],
+  cex = 1.5)
+#--  Panel 3
+boxplot(amm~alt2, data = denv2,
+  ylim = c(0, 80))
+```
+]
+
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+plot(denv2$pho, -denv2$alt)
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+plot(denv2$pho, -(denv2$alt))
+```
+]
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt,
+  ann = FALSE, axes = FALSE,
+  type = "n")
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n")
+```
+]
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt,
+  ann = FALSE, axes = FALSE,
+  type = "n", xlim = c(0, 500),
+  ylim = c(-1000, 0))
+points(denv2$pho, -denv2$alt,
+  pch = 19, cex = 1.1)
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+par(las = 1, bty = "l", xaxs = "i", yaxs = "i")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n", xlim = c(0, 500),
+ylim = c(-1000, 0))
+points(denv2$pho, -denv2$alt, pch = 19, cex = 1.1)
+```
+]
+
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt,
+  ann = FALSE, axes = FALSE,
+  type = "n", xlim = c(0, 500),
+  ylim = c(-1000, 0))
+lines(denv2$pho, -denv2$alt,
+  lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+par(las = 1, bty = "l", xaxs = "i", yaxs = "i")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n", xlim = c(0, 500),
+ylim = c(-1000, -100))
+lines(denv2$pho, -denv2$alt, lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+```
+]
+
+
+---
+# Custom plot - Panel 1
+
+
+.pull-left[
+```R
+par(las = 1, bty = "l")
+plot(denv2$pho, -denv2$alt,
+  ann = FALSE, axes = FALSE,
+  type = "n", xlim = c(0, 500),
+  ylim = c(-1000, 0))
+lines(denv2$pho, -denv2$alt,
+  lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+title(main = "A",
+  xlab = "Phosphorous",
+  ylab = "Altitude")
+```
+]
+
+.pull-right[
+```{R, echo = FALSE}
+par(las = 1, bty = "l", xaxs = "i", yaxs = "i")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n", xlim = c(0, 500),
+ylim = c(-1000, -100))
+lines(denv2$pho, -denv2$alt, lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+title(main = "A", xlab = "Phosphorous", ylab = "Altitude")
+```
+]
+
+
+
+---
+# Custom plot
+
+
+```{R, eval = F}
+png("output/figure1.png", unit = "in", width = 7, height = 6, res = 300)
+layout(mat, widths = c(1.2, 1))
+par(mar = c(4,4,1,1))
+#-- Panel 1
+par(las = 1, bty = "l", xaxs = "i", yaxs = "i")
+plot(denv2$pho, -denv2$alt, ann = FALSE, axes = FALSE, type = "n", xlim = c(0, 500),
+ylim = c(-1000, -100))
+lines(denv2$pho, -denv2$alt, lwd = 1.5)
+axis(1)
+axis(2, at = seq(-1000, 0, 200),
+labels = abs(seq(-1000, 0, 200)))
+title(main = "A", xlab = "Phosphorous", ylab = "Altitude")
+#-- Panel 2
+par(bty = "o", xaxs = "r", yaxs = "r")
+plot(x = denv2$alt, y = denv$amm, pch = 19,
+  xlab = "altitude", ylab = "amm",
+  col = c("salmon1", "turquoise2")[denv2$nit2+1],
+  cex = 1.5)
+#--  Panel 3
+boxplot(oxy~alt2, data = denv2)
+```
+
+---
+# Custom plot
+
+.center[![:scale 80%](output/figure1.png)]
+
+
+
+---
+# Custom plot
+<br>
+
+- Another example: https://insileco.github.io/Visualisation-SentinelleNord/#33
+
+- See https://insileco.github.io/VisualiseR/
+
+- Partition with ggplot2
+
+  - [article on sthda](http://www.sthda.com/english/wiki/ggplot2-facet-split-a-plot-into-a-matrix-of-panels)
+  - [see patchwork](https://github.com/thomasp85/patchwork)
+
+
+
+
+
+
+
+
+
+
+---
 class: inverse, center, bottom
 background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/BlankMap-World_gray.svg/1405px-BlankMap-World_gray.svg.png)
 background-size: contain
@@ -86,6 +1661,17 @@ background-size: contain
 ---
 # Overview of the section
 
+```{r, echo = FALSE}
+library(sf)
+library(raster)
+library(vegan)
+library(mapview)
+library(RColorBrewer)
+opts_chunk$set(
+  dpi = 96
+)
+```
+
 
 <br>
 
@@ -93,7 +1679,7 @@ background-size: contain
 
 1. Why mapping in R?
 
-2. Spatial data & Coordinate reference system
+2. Spatial data & Coordinate reference systems
 
 3. Vector data with **`sf`**
 
@@ -115,9 +1701,9 @@ library(sf) # spatial vector data
 
 library(raster) # spatial raster data
 
-library(RColorBrewer) # color
+library(RColorBrewer) # colors
 
-library(mapview) # interactive map
+library(mapview) # interactive maps
 ```
 
 ---
@@ -132,13 +1718,14 @@ library(mapview) # interactive map
 .pull-left[
 1. show where your plots are
 
-2. show how variables are distributed spatially
+2. show the spatial distribution of your variables
 
 3. show results of spatial analyses
 ]
 
 ---
 # Why using R for mapping?
+
 
 1. Open-source, free
 
@@ -209,7 +1796,7 @@ class: inverse, center, middle
 
 ---
 class: inverse, center, middle
-# Coordinate reference system
+# Coordinate reference systems
 
 .center[
 ![:scale 50%](http://gistbok.ucgis.org/sites/default/files/figure2-projections.png)
@@ -250,7 +1837,7 @@ Many, many ways to represent the 3-D shape of the earth and to project it in a 2
 > <br>
 > EPSG `32188` <=> proj4 `+proj=tmerc +lat_0=0 +lon_0=-73.5 +k=0.9999 +x_0=304800 +y_0=0 +ellps=GRS80 +datum=NAD83 +units=m +no_defs`
 
-- All geographic files are created using a specific CRS - but it's not always defined!
+- All geographic files are created with a specific CRS - but it's not always defined!
 
 - To find CRS in any format: [Spatial Reference](http://spatialreference.org/)
 
@@ -260,19 +1847,13 @@ class: inverse, center, middle
 
 ---
 # Intro to Simple Features
+<br>
 
 <img src="https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif" style="float:right;width:150px;height:150px;">
-Why use the `sf` package when `sp` is already tried and tested?
+
 
 - .alert[Simple features refers to a formal standard] (ISO 19125-1:2004) that describes
 how objects in the real world can be represented in computers
-
-- .alert[successor of `sp`]
-
-- .alert[`sf` combines the functionality of the 3 main packages of the `sp` paradigm]:
-    1. `sp` for the class system;
-    2. `rgdal` for reading and writing data;
-    3. `rgeos` for spatial operations undertaken by GEOS.
 
 - .alert[`sf` objects are easy to plot, manipulate, import and export]
   - Spatial objects are stored as data frames, with the feature geometries stored in list-columns
@@ -298,12 +1879,12 @@ how objects in the real world can be represented in computers
 ---
 # Geospatial data in R
 
-We will create a thematic map of Quebec as our sampled area using data readily available in R using `getData()` from the `raster` package:
+Let's create a thematic map of Quebec (our study area) using data ravailable in R using `getData()` from `raster`:
 - Canadian provincial boundaries - vector data
 - Climate data - raster data
 
 
-```{r getdata, eval = F}
+```{r getdata, eval = FALSE}
 # Create a new directory
 dir.create("data")
 
@@ -317,9 +1898,9 @@ can
 ```
 
 ---
-# Prep vector data 
+# Prep vector data
 
-Convert from `sp` to `sf` objects to facilitate manipulation
+Convert from `sp` (`sf`'s ancester) to `sf` objects to facilitate manipulation
 
 ```{r st_sf, eval = F}
 can_sf <- st_as_sf(can)
@@ -332,12 +1913,12 @@ can_sf[1:3,]
 ```
 
 ---
-# Prep vector data 
+# Prep vector data
 
 Retrieve Quebec and surrounding provinces
 
 ```{r getQc, message = F}
-neigh <- c("Québec", "Ontario", "Nova Scotia", 
+neigh <- c("Québec", "Ontario", "Nova Scotia",
            "New Brunswick", "Newfoundland and Labrador")
 qc_neigh <- dplyr::filter(can_sf, NAME_1 %in% neigh)
 
@@ -350,11 +1931,11 @@ qc_neigh
 
 
 ---
-# Prep vector data 
+# Prep vector data
 
-Change projection for a better representation of Quebec. 
+Change projection for a better representation of Quebec.
 
-> Here, I chose EPSG 32188 which corresponds to NAD83 - MTM zone 9 
+> Here, I chose EPSG 32188 which corresponds to NAD83 - MTM zone 9
 
 ```{r qc_proj, message = F}
 qc_neigh_prj <- st_transform(qc_neigh, crs = 32188)
@@ -367,16 +1948,16 @@ It would take a while to plot because there is a lot of unnecessary details, so
 we can simplify the shape of the polygons using `st_simplify()`.
 
 ```{r simplify}
-qc_neigh_simple <- st_simplify(qc_neigh_prj, 
+qc_neigh_simple <- st_simplify(qc_neigh_prj,
                                dTolerance = 1000) # simplify geometry at a 1km scale)
 ```
 
 ---
 # Simple plot
 
-Instead of creating a single map, the default plot of `sf` object creates multiple maps, one for each attribute. This is often useful for exploring the spatial distribution of different variables.
+Instead of creating a single map, the default plot of `sf` object creates multiple maps (one per attribute). This is often useful for exploring the spatial distribution of different variables.
 
-```{r base_plot, message = F, fig.height=6, fig.width=6, echo = -1}
+```{r base_plot, message = FALSE, fig.height=6, fig.width=6, echo = -1}
 par(mypar)
 plot(qc_neigh_simple)
 ```
@@ -390,15 +1971,15 @@ par(mypar)
 qc_simple <- dplyr::filter(qc_neigh_simple, NAME_1=="Québec")
 
 plot(st_geometry(qc_neigh_simple), col = "grey65")
-plot(st_geometry(qc_simple), col = "blue3", add = T)
+plot(st_geometry(qc_simple), col = "blue3", add = TRUE)
 ```
 
 ---
 # Create a layer of `MULTIPOINTS`
 
-Let's say we sampled vegetation in 100 plots across Québec; we now want to plot them
-with points proportional to their species richness. We will now create a data
-frame containing coordinates and random values from 5 to 50.
+- We sampled vegetation in 100 plots across Québec;
+- We want to plot them with points proportional to their species richness.
+- Let's create a data frame with coordinates + random values.
 
 ```{r points, message = F}
 # Sample random points from our study area
@@ -415,12 +1996,12 @@ sample_pts
 ---
 # Get bioclimatic rasters
 
-If we were interested in the latitudinal temperature gradient, we could add a
+- Assuming we are interested in the latitudinal temperature gradient, we add a
 raster of mean annual temperature (`bio1`) as a background to our map.
 
-We will use a low resolution so it does not take too long to plot.
+- Let's use a low resolution so it does not take too long to plot.
 
-```{r temp, message = F, fig.width=9}
+```{r temp, message = FALSE, fig.width=9}
 bioclim <- getData("worldclim", var = "bio", res = 10, path = "data")
 
 # There are 19 layers in this raster.
@@ -452,7 +2033,7 @@ temp
 
 Change projection to match with the polygons using `projectRaster()`.
 
-- `projectRaster()` requires the PROJ.4 format of the CRS: 
+- `projectRaster()` requires the PROJ.4 format of the CRS:
 
 ```{r}
 st_crs(qc_simple)$proj4string
@@ -467,7 +2048,7 @@ temp_prj <- projectRaster(temp, crs = st_crs(qc_simple)$proj4string)
 # Prep raster data - crop and mask
 
 1. `crop()` decreases the extent of a raster using the extent of another spatial object. `crop()` expects a `sp` object, so we need to transform the polygon first.
-2. `mask()` keeps the raster values only in the area of interest and set the rest to NA.
+2. `mask()` keeps the raster values only in the area of interest and set the rest to `NA`.
 
 ```{r crop}
 temp_crop <- crop(temp_prj, as(qc_simple, "Spatial"))
@@ -477,8 +2058,8 @@ temp_mask <- mask(temp_crop, qc_simple)
 ```{r, echo = -1, fig.width=8, fig.height=4.5}
 par(mypar)
 par(mfrow = c(1,2))
-plot(temp_crop, main = "crop")
-plot(temp_mask, main = "mask")
+raster::plot(temp_crop, main = "crop")
+raster::plot(temp_mask, main = "mask")
 ```
 
 ---
@@ -523,7 +2104,7 @@ par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0,0))
 
 plot(st_geometry(qc_neigh_simple),
      col = '#b5cfbd', border = 'grey50',
-     axes = T, graticule = T) # add graticules
+     axes = TRUE, graticule = TRUE) # add graticules
 ```
 
 
@@ -537,22 +2118,23 @@ layout(matrix(1:2, 2), heights = c(1,.2))
 par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0,0))
 plot(st_geometry(qc_neigh_simple),
      col = '#b5cfbd', border = 'grey50',
-     axes = T, graticule = T) # add graticules
-image(temp_mask, add = T, col = mypal)
+     axes = TRUE, graticule = TRUE) # add graticules
+raster::image(temp_mask, add = TRUE, col = mypal)
 ```
 
 ---
 # Step by step thematic map
 
 Add the Quebec polygon's boundary on top
+
 ```{r, echo = 5, fig.width = 5.5, fig.height = 6}
 layout(matrix(1:2, 2), heights = c(1,.2))
 par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0,0))
 plot(st_geometry(qc_neigh_simple),
      col = '#b5cfbd', border = 'grey50',
-     axes = T, graticule = T) # add graticules
-image(temp_mask, add = T, col = mypal)
-plot(st_geometry(qc_simple), add = T, 
+     axes = TRUE, graticule = TRUE) # add graticules
+raster::image(temp_mask, add = TRUE, col = mypal)
+plot(st_geometry(qc_simple), add = TRUE,
      border = 'grey15', lwd = 1.4)
 ```
 
@@ -566,11 +2148,11 @@ layout(matrix(1:2, 2), heights = c(1,.2))
 par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0,0))
 plot(st_geometry(qc_neigh_simple),
      col = '#b5cfbd', border = 'grey50',
-     axes = T, graticule = T) # add graticules
-image(temp_mask, add = T, col = mypal)
-plot(st_geometry(qc_simple), add = T, 
+     axes = TRUE, graticule = TRUE) # add graticules
+raster::image(temp_mask, add = TRUE, col = mypal)
+plot(st_geometry(qc_simple), add = TRUE,
      border = 'grey15', lwd = 1.4)
-plot(st_geometry(sample_pts), add = T, pch = 21,
+plot(st_geometry(sample_pts), add = TRUE, pch = 21,
      bg = "#63636388", col = "grey15", lwd = 1.4,
      cex = sample_pts$richness/25) # Size proportional to richness
 ```
@@ -583,12 +2165,12 @@ Create a color legend manually
 
 ```{r, echo = -1, fig.height=5}
 par(mypar)
-val <- range(values(temp_mask), na.rm = T)
+val <- range(values(temp_mask), na.rm = TRUE)
 val
 
 mat <- as.matrix(seq(val[1], val[2], length = 200))
-                 
-image(x = mat[,1], y = 1, z = mat, col = mypal, axes = F, ann = F)
+
+image(x = mat[,1], y = 1, z = mat, col = mypal, axes = FALSE, ann = FALSE)
 axis(1)
 mtext(side = 1, line = 1.8, text = 'Mean annual temperature (°C)')
 ```
@@ -602,15 +2184,15 @@ layout(matrix(1:2, 2), heights = c(1,.2))
 par(las = 1, xaxs='i', yaxs='i', mar = c(2,3,0.1,0.1))
 plot(st_geometry(qc_neigh_simple),
      col = '#b5cfbd', border = 'grey50',
-     axes = T, graticule = T) # add graticules
-image(temp_mask, add = T, col = mypal)
-plot(st_geometry(qc_simple), add = T, 
+     axes = TRUE, graticule = TRUE) # add graticules
+raster::image(temp_mask, add = TRUE, col = mypal)
+plot(st_geometry(qc_simple), add = TRUE,
      border = 'grey15', lwd = 1.4)
-plot(st_geometry(sample_pts), add = T, pch = 21,
+plot(st_geometry(sample_pts), add = TRUE, pch = 21,
      bg = "#63636388", col = "grey15", lwd = 1.4,
      cex = sample_pts$richness/25) # Size proportional to richness
 par(mar = c(3,4,1,4))
-image(x = mat[,1], y = 1, z = mat, col = mypal, axes = F, ann = F)
+raster::image(x = mat[,1], y = 1, z = mat, col = mypal, axes = FALSE, ann = FALSE)
 axis(1, cex.axis = .8)
 mtext(side = 1, line = 1.8, text = 'Mean annual temperature (°C)')
 ```
@@ -623,7 +2205,7 @@ class: inverse, center, middle
 # Interactive map
 
 
-```{r mapview1, fig.width=11, fig.height=6.5}
+```{r mapview1, fig.width=12.4, fig.height=6.5}
 mapView(qc_simple)
 ```
 
@@ -631,15 +2213,15 @@ mapView(qc_simple)
 ---
 # Interactive map
 
-```{r mapview_pts, fig.width=11, fig.height=6.5}
+```{r mapview_pts, fig.width=12.4, fig.height=6.5}
 mapView(sample_pts, layer.name = "Species richness")
 ```
 
 ---
 # Interactive map
 
-```{r mapview3, fig.width=11, fig.height=6.5}
-mapView(sample_pts, col.regions = "red", cex = 'richness', legend = F, 
+```{r mapview3, fig.width=12.4, fig.height=6.5}
+mapView(sample_pts, col.regions = "red", cex = 'richness', legend = FALSE,
         map.types = "Esri.WorldImagery")
 ```
 
@@ -690,17 +2272,15 @@ mapView(sample_pts, col.regions = "red", cex = 'richness', legend = F,
 
 ]
 
+
+
+
 ---
-class: inverse, center, bottom
+class: inverse, center, middle
 
-.center[
-![:scale 30%](images/rda_schema.png)
-]
-# Introduction to ordination
+# Introduction to ordination: PCA+RDA
 
-## Principal component analysis (PCA) 
-
-## Redundancy analysis (RDA)
+## <i class="fa fa-sitemap" aria-hidden="true"></i>
 
 
 
@@ -729,13 +2309,13 @@ class: inverse, center, bottom
 ---
 # Unconstrained vs constrained ordinations
 
-**Unconstrained ordination**
+### Unconstrained ordination
 
 - Reveal the main patterns in multivariate data (e.g. matrix of species abundance at different sites or matrix of environmental variables at different sites)
 - Describe relationship among variables of one matrix.
 - Descriptive method: no statistical test
 
-**Constrained/canonical ordination**
+### Constrained/canonical ordination
 
 - Explicitly puts into relationship two matrices: one dependent matrix and one explanatory matrix.
 - This approach combines the techniques of ordination and multiple regression.
@@ -834,7 +2414,7 @@ head(spe)
 ---
 # Explore species data
 
-Take a look at the distribution of species frequencies  
+Take a look at the distribution of species frequencies
 
 ```{r, fig.width=8, echo = -1}
 par(mypar)
@@ -1118,7 +2698,7 @@ biplot(spe.h.pca, scaling = 2, main = "Scaling 2 = correlation biplot")
 ---
 # PCA - Scaling
 
-```{r, echo = F, fig.height=4.5, fig.width=9}
+```{r, echo = FALSE, fig.height=4.5, fig.width=9}
 par(mypar, mfrow = c(1,2))
 biplot(spe.h.pca, scaling = 1, main = "Scaling 1 = distance biplot")
 biplot(spe.h.pca, scaling = 2, main = "Scaling 2 = correlation biplot")
@@ -1141,6 +2721,7 @@ biplot(spe.h.pca, scaling = 2, main = "Scaling 2 = correlation biplot")
 
 ---
 # Customized biplot
+<br>
 
 - Extract species and site scores along the 1st and 2nd PC:
 ```{r}
@@ -1246,7 +2827,7 @@ class: inverse, center, middle
 
 - RDA = combination of multiple regressions and a PCA.
 
-- It allow us to identify and test relationships between a response matrix and explanatory matrix or matrices
+- It allows us to identify and test relationships between a response matrix and explanatory matrix or matrices
 
 .center[ ![:scale 60%](images/RDA_mat.png)]
 
@@ -1265,9 +2846,9 @@ spe.rda <- rda(spe.hel ~., data = env.z) # "~." indicates all variables
 # or spe.rda <- rda(X = spe.hel, Y = env.z)
 ```
 
-- .comment[It is better to use the formula interface which is more flexible (allows for factors and interaction among variables)], for example: 
+- .comment[It is better to use the formula interface which is more flexible (allows for factors and interaction among variables)], for example:
   - `rda(spe.hel ~ var1 + var2*var3 + fac, data = env.z)`
-- You can also control for a group of variables, for example you are interested in the effect var1,2,3 while holding constant var4,5:  
+- You can also control for a group of variables, for example you are interested in the effect var1,2,3 while holding constant var4,5:
   - `rda(spe.hel ~ var1 + var2*var3 + Condition(var4 + var5), data = env.z)`
 
 ---
@@ -1281,7 +2862,7 @@ summary(spe.rda)
  - .alert[(0.3557/0.5023 = 70.81%)]
  - Equivalent of unadjusted R2
 - **`Unconstained Proportion`** ![:faic](arrow-right) unexplained variance in the response matrix (residuals)
-  - .alert[(0.1467/0.5023 = 29.21%)]  
+  - .alert[(0.1467/0.5023 = 29.21%)]
 
 
 
@@ -1299,7 +2880,7 @@ summary(spe.rda)
 ---
 # Selecting variables
 
-Using .alert[stepwise selection], we can select the explanatory variables that are significant.  
+Using .alert[stepwise selection], we can select the explanatory variables that are significant.
 
 
 ```{r}
@@ -1329,7 +2910,7 @@ rda.sel$call
 RsquareAdj(rda.sel)
 ```
 
-How would you report these results in a paper?  
+How would you report these results in a paper?
 - .comment[The selected environmental variables (dfs + oxy + bdo) explain .alert[51.43%] of the variation in fish community composition in the 30 sites along the Doubs river.]
 - Note: you should report the adjusted R2 which takes into account the number of explanatory variables.
 
@@ -1359,7 +2940,7 @@ anova.cca(rda.sel, step = 1000, by = "term")
 ---
 # RDA - Visualization
 
-The RDA allows the **simultaneous visualization** of your response and explanatory variables
+RDA allows a **simultaneous visualization** of your response and explanatory variables
 
 ```{r, echo=-1, fig.width=11, fig.height=4.5}
 par(mfrow = c(1,2), mar=c(4,4,0,1), cex = 1.5)
@@ -1393,7 +2974,7 @@ arrows(0, 0, scores(rda.sel, scaling = 1)$species[,1],
 .pull-right[
 - .alert[Distances among sites] approximate their Euclidean distances, i.e. sites that are close together share similar species. Idem for centroids of qualitative variables.
 - .alert[Projecting a site at right angle] on a response variable or a quantitative explanatory variable approximates the value of the site along that variable.
-- The .alert[angles between response and explanatory variables] reflect their correlations (*but not the angles among response variables*).  
+- The .alert[angles between response and explanatory variables] reflect their correlations (*but not the angles among response variables*).
 ]
 ---
 # RDA triplot - Scaling
@@ -1414,11 +2995,11 @@ arrows(0, 0, scores(rda.sel)$species[,1],
 - The .alert[angles between *all* vector variables] reflect their correlations.
 - Distances among sites do **not** approximate their Euclidean distances. Idem for centroids of qualitative variables.
 - .alert[Projecting a site at right angle] on a response variable or a quantitative explanatory variable approximates the value of the site along that variable.
-- Environmental arrows that are .alert[along the first axis and longer]  are more important to explain the variation in the community matrix.     
+- Environmental arrows that are .alert[along the first axis and longer]  are more important to explain the variation in the community matrix.
 ]
 
 ---
-## Customizing RDA triplot
+# Customizing RDA triplot
 
 Both `plot()` and `ordiplot()` make quick and simple ordination plots, but you can customize your plots by manually setting the aesthetics of points, text, and arrows.
 
@@ -1471,7 +3052,7 @@ text(env.scores[,1]+sign(env.scores[,1])*.05, # shift labels
 ---
 # Customizing RDA triplot
 
-```{r, echo = F, fig.width=7, fig.height=7}
+```{r, echo = FALSE, fig.width=7, fig.height=7}
 par(mypar)
 # Empty plot with axes
 plot(rda.sel, type = "none",

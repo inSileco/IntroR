@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
     <title>Introduction to R</title>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <meta name="author" content="Marie-Hélène Brice &amp; Kevin Cazelles" />
     <link href="assets/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link rel="stylesheet" href="assets/font-awesome-4.7.0/css/font-awesome.min.css">
@@ -202,7 +202,7 @@ class(library)
 plot
 # function (x, y, ...) 
 # UseMethod("plot")
-# &lt;bytecode: 0x7faeb1323440&gt;
+# &lt;bytecode: 0x55bf3522c7f8&gt;
 # &lt;environment: namespace:graphics&gt;
 ```
 
@@ -394,18 +394,15 @@ dim(df)
 
 ```r
 df[1, 1]
-# [1] A
-# Levels: A B C D E
+# [1] "A"
 ```
 
 
 ```r
 df$letter
-# [1] A B C D E
-# Levels: A B C D E
+# [1] "A" "B" "C" "D" "E"
 df[,1]
-# [1] A B C D E
-# Levels: A B C D E
+# [1] "A" "B" "C" "D" "E"
 df[1]
 #   letter
 # 1      A
@@ -425,7 +422,7 @@ df[1:2]
 
 ```r
 class(df$letter)
-# [1] "factor"
+# [1] "character"
 class(df$val)
 # [1] "numeric"
 ```
@@ -685,12 +682,12 @@ df3 &lt;- read_csv("data/environ.csv")
 head(df3, 3)
 # # A tibble: 3 x 11
 #     dfs   alt   slo   flo    pH   har   pho   nit   amm   oxy   bdo
-#   &lt;int&gt; &lt;int&gt; &lt;dbl&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+#   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
 # 1     3   934  6.18    84    79    45     1    20     0   122    27
 # 2    22   932  3.43   100    80    40     2    20    10   103    19
 # 3   102   914  3.64   180    83    52     5    22     5   105    35
 class(df3)
-# [1] "tbl_df"     "tbl"        "data.frame"
+# [1] "spec_tbl_df" "tbl_df"      "tbl"         "data.frame"
 ```
 
 --
@@ -1350,7 +1347,7 @@ denv2 %&gt;% group_by(nit2) %&gt;% summarize(n())
 # 2 TRUE     16
 denv2 %&gt;% group_by(nit2, alt2) %&gt;% summarize(n())
 # # A tibble: 5 x 3
-# # Groups:   nit2 [?]
+# # Groups:   nit2 [2]
 #   nit2  alt2   `n()`
 #   &lt;lgl&gt; &lt;fct&gt;  &lt;int&gt;
 # 1 FALSE high       9
@@ -1375,7 +1372,7 @@ denv2 %&gt;% group_by(nit2) %&gt;% summarize(n())
 denv2 %&gt;% group_by(nit2, alt2) %&gt;%
   summarize(nb_obs = n(), mean_amm = mean(amm), sd_oxy = sd(oxy))
 # # A tibble: 5 x 5
-# # Groups:   nit2 [?]
+# # Groups:   nit2 [2]
 #   nit2  alt2   nb_obs mean_amm sd_oxy
 #   &lt;lgl&gt; &lt;fct&gt;   &lt;int&gt;    &lt;dbl&gt;  &lt;dbl&gt;
 # 1 FALSE high        9     6.56  18.6 
@@ -2129,6 +2126,7 @@ boxplot(oxy~alt2, data = denv2)
   - [article on sthda](http://www.sthda.com/english/wiki/ggplot2-facet-split-a-plot-into-a-matrix-of-panels)
   - [see patchwork](https://github.com/thomasp85/patchwork)
     </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script src="inSileco-macros.js"></script>
 <script>var slideshow = remark.create({
@@ -2137,16 +2135,57 @@ boxplot(oxy~alt2, data = denv2)
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));
 });
-(function() {
-  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
   if (!r) return;
   s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
   d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
 })();</script>
 
 <script>
 (function() {
-  var i, text, code, codes = document.getElementsByTagName('code');
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
   for (i = 0; i < codes.length;) {
     code = codes[i];
     if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
@@ -2160,7 +2199,8 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
     }
     i++;
   }
-})();
+};
+slideshow._releaseMath(document);
 </script>
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
